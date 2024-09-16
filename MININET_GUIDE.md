@@ -1,4 +1,6 @@
 # Mininet Guide
+Summary of commands and instructions for Mininet, taken from:\
+https://mininet.org/sample-workflow/
 
 ### Run Wireshark
 ```bash
@@ -67,6 +69,17 @@ $ sudo mn --link tc,bw=10
 Delay (10ms)
 ```bash
 $ sudo mn --link tc,delay=10ms
+```
+
+Bring link down/up
+```bash
+mininet> link s1 h1 down
+mininet> link s1 h1 up
+```
+
+### Run a python program inside a host
+```bash
+mininet> h1 python3 my_program.py
 ```
 
 ### Clean up
