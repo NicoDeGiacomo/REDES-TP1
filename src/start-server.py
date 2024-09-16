@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 def start_server(host: str, port: str, storage: str) -> None:
     if not os.path.exists(storage):
-        os.makedirs(storage) # TODO: Should handle errors
+        os.makedirs(storage)  # TODO: Should handle errors
 
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
 
