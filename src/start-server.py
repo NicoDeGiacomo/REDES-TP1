@@ -1,26 +1,33 @@
 import argparse
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 
 def start_server(host: str, port: str, storage: str) -> None:
+    if not os.path.exists(storage):
+        os.makedirs(storage) # TODO: Should handle errors
+
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Starts File Transfer Server")
+    parser = argparse.ArgumentParser(
+        description="Starts File Transfer Server",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
 
     parser.add_argument('-v', '--verbose', action='store_true',
                         help="increase output verbosity")
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
-    parser.add_argument('-H', '--host', action='store',
-                        help="service IP address", metavar="\b")
-    parser.add_argument('-p', '--port', action='store',
-                        help="service port", metavar="\b")
-    parser.add_argument('-s', '--storage', action='store',
-                        help="storage dir path", metavar="\b")
+    parser.add_argument('-H', '--host', action='store', default="localhost",
+                        help="service IP address")
+    parser.add_argument('-p', '--port', action='store', default="12345",
+                        help="service port")
+    parser.add_argument('-s', '--storage', action='store', default="./storage",
+                        help="storage dir path")
 
     args = parser.parse_args()
 
