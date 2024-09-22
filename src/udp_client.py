@@ -1,6 +1,6 @@
 import socket
 import struct
-import asyncio
+
 
 class UdpHeader:
     def __init__(self) -> None:
@@ -14,15 +14,16 @@ class UDPClient:
         self.host = host
         self.port = port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_UDP)
+        self.client.bind((self.host, self.port))
         self.header = UdpHeader()
 
-    async def send_message(self, message: str) -> None:
-        self.client.sendto(message.encode(), (self.host, self.port))
+    async def send_message_to(self, message: str, dst_host: str, dst_port: int) -> None:
+        self.client.sendto(message.encode(), (dst_host, dst_port))
 
     async def receive_message(self) -> tuple[UdpHeader, bytes]:
         # wipe the header
         self.header = UdpHeader()
-        packet, addr = self.client.recvfrom(65535)
+        packet, addr = self.client.recvfrom(65565)
         # the IP header is the first 20 bytes of the packet
         udp_header = packet[20:28]
         # Unpack UDP header (8 bytes: Source Port, Destination Port, Length, Checksum)
