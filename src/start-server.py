@@ -1,15 +1,18 @@
 import argparse
 import logging
 import os
+import udp_client
+import accepter
 
 logger = logging.getLogger(__name__)
 
 
-def start_server(host: str, port: str, storage: str) -> None:
+def start_server(host: str, port: int, storage: str) -> None:
     if not os.path.exists(storage):
         os.makedirs(storage)  # TODO: Should handle errors
-
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
+    server_accepter = accepter.Accepter(host, port)
+    server_accepter.receive_client()
 
 
 if __name__ == '__main__':
@@ -24,7 +27,7 @@ if __name__ == '__main__':
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="localhost",
                         help="service IP address")
-    parser.add_argument('-p', '--port', action='store', default="12345",
+    parser.add_argument('-p', '--port', action='store', default=12345,
                         help="service port")
     parser.add_argument('-s', '--storage', action='store', default="./storage",
                         help="storage dir path")

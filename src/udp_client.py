@@ -20,8 +20,8 @@ class UDPClient:
         logger.info(f"UDP client bound to {self.host}:{self.port}")
         self.header = UdpHeader()
 
-    def send_message_to(self, message: str, dst_host: str, dst_port: int) -> None:
-        self.client.sendto(message.encode(), (dst_host, dst_port))
+    def send_message_to(self, message: bytearray, dst_host: str, dst_port: int) -> None:
+        self.client.sendto(message, (dst_host, dst_port))
         logger.info(f"Message sent to {dst_host}:{dst_port}")
 
     def receive_message(self) -> tuple[UdpHeader, bytes]:
