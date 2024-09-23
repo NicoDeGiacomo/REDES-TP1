@@ -1,9 +1,9 @@
 import socket
 import logging
 
-from src.downloader import Downloader
-from src.protocol import StopAndWait, TCPSAck
-from src.uploader import Uploader
+from downloader import Downloader
+from protocol import StopAndWait, TCPSAck
+from uploader import Uploader
 
 logger = logging.getLogger(__name__)
 

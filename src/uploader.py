@@ -15,6 +15,8 @@ class Uploader(threading.Thread):
     def run(self):
         logger.info(f"Starting upload of {self.filename}")
         # TODO: implement upload logic, calls protocol start_upload
+        #self.protocol.start_upload(self.filename)
+        #logger.info(f"Upload finished")
 
     def stop(self):
         self.uploading = False

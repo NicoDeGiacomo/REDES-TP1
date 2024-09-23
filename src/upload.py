@@ -39,9 +39,11 @@ def upload(host: str, port: int, path: str, file_name: str):
     header = bytearray()
     header.append(first_byte)
     header.extend(file_name_bytes)
-    logger.info(f"Handshake header created")
+    logger.info(f"Handshake header created\n")
 
-    socket.send_message_to(header, host, port)
+    if not socket.send_message_to(header, host, port):
+        return 0
+    
     return 0
 
 if __name__ == '__main__':
@@ -58,9 +60,9 @@ if __name__ == '__main__':
                         help="server IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
-    parser.add_argument('-s', '--src', action='store', default="./client_storage",
+    parser.add_argument('-s', '--src', action='store', default="./files/cliet_storage",
                         help="source file path")
-    parser.add_argument('-n', '--name', action='store', default="./file.txt",
+    parser.add_argument('-n', '--name', action='store', default="velociraptor.jpg",
                         help="file name")
 
     args = parser.parse_args()
