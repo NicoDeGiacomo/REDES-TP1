@@ -7,12 +7,11 @@ logger = logging.getLogger(__name__)
 
 
 class Downloader(threading.Thread):
-    def __init__(self, socket, filename, protocol):
+    def __init__(self, filename, comm_protocol):
         super().__init__()
-        self.socket = socket
         self.filename = filename
         self.uploading = True
-        self.protocol = protocol
+        self.protocol = comm_protocol
 
     def run(self):
         logger.info(f"Starting download of {self.filename}")

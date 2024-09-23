@@ -12,10 +12,15 @@ class Protocol(ABC):
     def start_download(self, file_name):
         pass
 
+    def answer_connection(self):
+        logger.info(f"Answering client request")
+        # TODO: implement connection possitive ACK message (the required verifications of error ack are made before)
+
 
 class StopAndWait(Protocol):
-    def __init__(self, socket):
+    def __init__(self, socket, dst_host, dst_port):
         self.socket = socket
+        self.dst_host, self.dst_port = dst_host, dst_port
 
     def start_upload(self, dst_host, dst_port, file_name):
         logger.info(f"Starting upload with Stop And Wait protocol")
@@ -25,9 +30,11 @@ class StopAndWait(Protocol):
         logger.info(f"Starting download with Stop And Wait protocol")
         #TODO: implement S&W download logic
 
+
 class TCPSAck(Protocol):
-    def __init__(self, socket):
+    def __init__(self, socket, dst_host, dst_port):
         self.socket = socket
+        self.dst_host, self.dst_port = dst_host, dst_port
 
     def start_upload(self, dst_host, dst_port, file_name):
         logger.info(f"Starting upload with TCP + SAck protocol")

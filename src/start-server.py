@@ -11,8 +11,11 @@ def start_server(host: str, port: int, storage: str) -> None:
     if not os.path.exists(storage):
         os.makedirs(storage)  # TODO: Should handle errors
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
+    clients_threads = []
     server_accepter = accepter.Accepter(host, port)
-    server_accepter.receive_client()
+    new_client = server_accepter.receive_client()
+    new_client.start()
+    clients_threads.append(new_client)
 
 
 if __name__ == '__main__':

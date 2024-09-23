@@ -6,13 +6,11 @@ import protocol
 logger = logging.getLogger(__name__)
 
 class Uploader(threading.Thread):
-    def __init__(self, socket, filename, dst_host, dst_port, protocol):
+    def __init__(self, filename, comm_protocol):
         super().__init__()
-        self.socket = socket
         self.filename = filename
-        self.dst_host, self.dst_port = dst_host, dst_port
         self.uploading = True
-        self.protocol = protocol
+        self.protocol = comm_protocol
 
     def run(self):
         logger.info(f"Starting upload of {self.filename}")
