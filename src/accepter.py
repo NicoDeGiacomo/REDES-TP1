@@ -7,8 +7,6 @@ from uploader import Uploader
 
 logger = logging.getLogger(__name__)
 
-RANDOM_HOST = 0
-
 class Accepter:
     def __init__(self, host='localhost', port=12345):
         self.host = host
@@ -24,9 +22,7 @@ class Accepter:
         logger.info(f'Server received an {'Upload' if action == 1 else 'Download'} action using {'S&W' if action == 1 else 'TCP + SACK'} protocol for a file named {file_name} ')
 
         #TODO: check error cases (memory/ports/filename usage) depending on the action. In case of error, answer here to the respective client
-        new_client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        new_client_socket.bind((self.host, RANDOM_HOST))
-        new_client_protocol = StopAndWait(new_client_socket, addr[0], addr[1]) if action == 1 else TCPSAck(new_client_socket, addr[0], addr[1])
+        new_client_protocol = StopAndWait(self.host, addr[0], addr[1]) if action == 1 else TCPSAck(self.host, addr[0], addr[1])
 
         new_client_action = Uploader(file_name, new_client_protocol) if action == 1 else Downloader(file_name, new_client_protocol)
         return new_client_action

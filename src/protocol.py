@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 import logging
+import socket
 
 logger = logging.getLogger(__name__)
+
+RANDOM_HOST = 0
 
 class Protocol(ABC):
     @abstractmethod
@@ -18,8 +21,9 @@ class Protocol(ABC):
 
 
 class StopAndWait(Protocol):
-    def __init__(self, socket, dst_host, dst_port):
-        self.socket = socket
+    def __init__(self, host, dst_host, dst_port):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.bind((host, RANDOM_HOST))
         self.dst_host, self.dst_port = dst_host, dst_port
 
     def start_upload(self, dst_host, dst_port, file_name):
@@ -32,8 +36,9 @@ class StopAndWait(Protocol):
 
 
 class TCPSAck(Protocol):
-    def __init__(self, socket, dst_host, dst_port):
-        self.socket = socket
+    def __init__(self, host, dst_host, dst_port):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.bind((host, RANDOM_HOST))
         self.dst_host, self.dst_port = dst_host, dst_port
 
     def start_upload(self, dst_host, dst_port, file_name):
