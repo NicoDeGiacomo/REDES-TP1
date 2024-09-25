@@ -2,8 +2,8 @@ import socket
 import logging
 import os
 
-import uploader
-import downloader
+from src.uploader import Uploader
+from src.downloader import Downloader
 from src.protocol import StopAndWait, TCPSAck
 
 
@@ -29,7 +29,7 @@ class Accepter:
         #TODO: check error cases (memory/ports/filename usage) depending on the action. In case of error, answer here to the respective client
         new_client_protocol = StopAndWait(self.host, addr, file_path) if ptocol == 1 else TCPSAck(self.host, addr, file_path)
 
-        new_client_action = uploader.Uploader(new_client_protocol) if action == 1 else downloader.Downloader(new_client_protocol)
+        new_client_action = Uploader(new_client_protocol) if action == 1 else Downloader(new_client_protocol)
         return new_client_action
 
     @staticmethod

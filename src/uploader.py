@@ -1,7 +1,7 @@
 import socket
 import threading
 import logging
-import protocol
+from src.protocol import Protocol, TCPSAck, StopAndWait
 
 logger = logging.getLogger(__name__)
 
