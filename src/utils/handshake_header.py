@@ -3,9 +3,9 @@ from src.protocol import Protocol
 from src.action import Action
 
 class HandshakeHeader:
-    def __init__(self, protocol, action: Action, file_name: str):
+    def __init__(self, protocol: Protocol, action: Action, file_name: str):
         action_bit = action.value
-        protocol_bit = protocol
+        protocol_bit = protocol.get_header_value()
         file_name_length = len(file_name)
         file_name_bytes = file_name.encode() # utf-8 by default
 

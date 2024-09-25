@@ -38,8 +38,6 @@ class TestAccepter(unittest.TestCase):
         def accepter_task():
             try:
                 new_client = accepter.receive_client()
-                new_client.start()
-                new_client.join()
                 # Store the result in the queue
                 accepter_queue.put(new_client)
             except Exception as e:
@@ -81,17 +79,16 @@ class TestAccepter(unittest.TestCase):
         self.assertIsNotNone(payload, "Client task did not return a payload")
 
         # Assert client header and payload
-        self.assertEqual(payload, b'\x00')
+        self.assertEqual(payload.decode(), message)
         self.assertEqual(header.src_port, 8888)
         self.assertEqual(header.dst_host, '127.0.0.1')
-        self.assertNotEqual(header.dst_port, 9999)
+        self.assertEqual(header.dst_port, 9999)
 
         # Ensure accepter_task returned a result
         self.assertIsNotNone(accepter_result, "Accepter task did not return a client")
-        self.assertTrue(accepter_result.downloading, "Accepter task did not return an uploading client")
+        self.assertTrue(accepter_result.uploading, "Accepter task did not return an uploading client")
         self.assertIsInstance(accepter_result.protocol, StopAndWait, 
                               "Accepter task did not return a StopAndWait protocol")
-        accepter_result.protocol.close()
         
     def test_accept_client_uploader_TCPACK(self):
         message = HandshakeHeader(TCPSAck.get_header_value(), Action.UPLOAD, 'test.txt').header
@@ -107,17 +104,16 @@ class TestAccepter(unittest.TestCase):
         self.assertIsNotNone(payload, "Client task did not return a payload")
 
         # Assert client header and payload
-        self.assertEqual(payload, b'\x00')
+        self.assertEqual(payload.decode(), message)
         self.assertEqual(header.src_port, 8888)
         self.assertEqual(header.dst_host, '127.0.0.1')
-        self.assertNotEqual(header.dst_port, 9999)
+        self.assertEqual(header.dst_port, 9999)
 
         # Ensure accepter_task returned a result
         self.assertIsNotNone(accepter_result, "Accepter task did not return a client")
         self.assertTrue(accepter_result.uploading, "Accepter task did not return an uploading client")
         self.assertIsInstance(accepter_result.protocol, TCPSAck, 
                               "Accepter task did not return a StopAndWait protocol")
-        accepter_result.protocol.close()
 
 if __name__ == '__main__':
     unittest.main()

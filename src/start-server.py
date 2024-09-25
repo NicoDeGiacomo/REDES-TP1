@@ -1,8 +1,8 @@
 import argparse
 import logging
 import os
-#import protocol.udp_client as udp_client
-import accepter as accepter
+import protocol.udp_client as udp_client
+import server.accepter as accepter
 
 logger = logging.getLogger(__name__)
 
@@ -13,10 +13,9 @@ def start_server(host: str, port: int, storage: str) -> None:
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
     clients_threads = []
     server_accepter = accepter.Accepter(storage, host, port)
-    while True:
-        new_client = server_accepter.receive_client()
-        new_client.start()
-        clients_threads.append(new_client)
+    new_client = server_accepter.receive_client()
+    new_client.start()
+    clients_threads.append(new_client)
 
 
 if __name__ == '__main__':

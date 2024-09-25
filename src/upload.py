@@ -2,9 +2,7 @@ import argparse
 import logging
 import os
 import errno
-#import protocol.udp_client as udp_client
-import protocol
-from action import Action
+import protocol.udp_client as udp_client
 
 
 logger = logging.getLogger(__name__)
@@ -29,16 +27,11 @@ def upload(host: str, port: int, path: str, file_name: str):
         return errno.ENOENT
     
     logger.info(f"File {file_name} found, proceeding with upload.")
-    client_protocol = protocol.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
-    logger.info(f"Stablishing connection with server")
-    client_protocol.stablish_connection(Action.UPLOAD.value)
-    logger.info(f"Starting file uploading")
-    client_protocol.start_upload()
+    # TODO: Add upload logic here
+    socket = udp_client.UDPClient('localhost', 0)
+    logger.info(f"client UDP socket created")
 
-    
-
-
-    """upload_bit = 1
+    upload_bit = 1
     #S&W
     protocol_bit = 1
     file_name_bytes = file_name.encode() # utf-8 by default
@@ -46,7 +39,11 @@ def upload(host: str, port: int, path: str, file_name: str):
     header = bytearray()
     header.append(first_byte)
     header.extend(file_name_bytes)
-    logger.info(f"Handshake header created\n")"""
+    logger.info(f"Handshake header created\n")
+
+    if not socket.send_message_to(header, host, port):
+        return 0
+    
     return 0
 
 if __name__ == '__main__':
@@ -63,7 +60,7 @@ if __name__ == '__main__':
                         help="server IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
-    parser.add_argument('-s', '--src', action='store', default="files/client_storage",
+    parser.add_argument('-s', '--src', action='store', default="./files/cliet_storage",
                         help="source file path")
     parser.add_argument('-n', '--name', action='store', default="velociraptor.jpg",
                         help="file name")
