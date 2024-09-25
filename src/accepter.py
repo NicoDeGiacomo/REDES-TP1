@@ -2,9 +2,9 @@ import socket
 import logging
 import os
 
-from src.uploader import Uploader
-from src.downloader import Downloader
-from src.protocol import StopAndWait, TCPSAck
+from uploader import Uploader
+from downloader import Downloader
+from protocol import StopAndWait, TCPSAck
 
 
 

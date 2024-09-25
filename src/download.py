@@ -33,9 +33,9 @@ if __name__ == '__main__':
                         help="server IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
-    parser.add_argument('-d', '--dst', action='store', default="./client_storage",
+    parser.add_argument('-d', '--dst', action='store', default="./files/client_storage",
                         help="destination file path")
-    parser.add_argument('-n', '--name', action='store', default="./file.txt",
+    parser.add_argument('-n', '--name', action='store', default="file.txt",
                         help="file name")
 
     args = parser.parse_args()
