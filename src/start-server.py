@@ -29,11 +29,11 @@ if __name__ == '__main__':
                         help="increase output verbosity")
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
-    parser.add_argument('-H', '--host', action='store', default="localhost",
+    parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="service IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="service port")
-    parser.add_argument('-s', '--storage', action='store', default="./files/server_storage",
+    parser.add_argument('-s', '--storage', action='store', default="files/server_storage",
                         help="storage dir path")
 
     args = parser.parse_args()
