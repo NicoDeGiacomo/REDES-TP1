@@ -1,6 +1,6 @@
 
-from protocol.protocol_config import Protocol
-from protocol.action import Action
+from src.protocol import Protocol
+from src.action import Action
 
 class HandshakeHeader:
     def __init__(self, protocol: Protocol, action: Action, file_name: str):
