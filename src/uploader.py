@@ -1,7 +1,7 @@
 import socket
 import threading
 import logging
-import protocol
+import protocol.protocol_config as protocol_config
 
 logger = logging.getLogger(__name__)
 

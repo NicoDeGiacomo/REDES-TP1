@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 import errno
-import udp_client
+import protocol.udp_client as udp_client
 
 
 logger = logging.getLogger(__name__)

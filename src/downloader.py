@@ -1,13 +1,13 @@
-import socket
 import threading
 import logging
+
 import protocol
 
 logger = logging.getLogger(__name__)
 
 
 class Downloader(threading.Thread):
-    def __init__(self, comm_protocol):
+    def __init__(self, comm_protocol: protocol.Protocol):
         super().__init__()
         self.uploading = True
         self.protocol = comm_protocol

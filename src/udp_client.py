@@ -16,37 +16,39 @@ class UDPClient:
         self.host = host
         self.port = port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        #self.client.bind((self.host, self.port))
+        self.client.bind((self.host, self.port))
         logger.info(f"UDP client bound to {self.host}:{self.port}")
         self.header = UdpHeader()
 
     def send_message_to(self, message: bytearray, dst_host: str, dst_port: int) -> bool:
-        retries = 3     # number of retries
-        timeout = 1     # seconds
+        self.client.sendto(message, (dst_host, dst_port))
+        logger.info(f"Message sent to {dst_host}:{dst_port}")
+        # retries = 3     # number of retries
+        # timeout = 1     # seconds
 
-        self.client.settimeout(timeout)
+        # self.client.settimeout(timeout)
 
-        while retries > 0:
-            try:
-                self.client.sendto(message, (dst_host, dst_port))
-                logger.info(f"Message sent to {dst_host}:{dst_port}")
+        # while retries > 0:
+        #     try:
+        #         self.client.sendto(message, (dst_host, dst_port))
+        #         logger.info(f"Message sent to {dst_host}:{dst_port}")
                 
-                ack, addr = self.client.recvfrom(1024)
+        #         ack, addr = self.client.recvfrom(1024)
 
-                if ack == b'ACK':
-                    logger.info(f"Received ACK from {addr}")
-                    return True
-            except socket.timeout:
-                logger.error(f"Timeout sending message to {dst_host}:{dst_port}")
-                retries -= 1
-            except Exception as e:
-                logger.error(f"Error sending message: {e}")
-                retries -= 1
+        #         if ack == b'ACK':
+        #             logger.info(f"Received ACK from {addr}")
+        #             return True
+        #     except socket.timeout:
+        #         logger.error(f"Timeout sending message to {dst_host}:{dst_port}")
+        #         retries -= 1
+        #     except Exception as e:
+        #         logger.error(f"Error sending message: {e}")
+        #         retries -= 1
 
-        logger.error(f"Failed to send message to {dst_host}:{dst_port}")
-        self.client.close()
+        # logger.error(f"Failed to send message to {dst_host}:{dst_port}")
+        # self.client.close()
 
-        return False
+        # return False
         
     def receive_message(self) -> tuple[UdpHeader, bytes]:
         # wipe the header

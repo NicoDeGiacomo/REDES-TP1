@@ -1,8 +1,8 @@
 import argparse
 import logging
 import os
-import udp_client
-import accepter
+import protocol.udp_client as udp_client
+import server.accepter as accepter
 
 logger = logging.getLogger(__name__)
 

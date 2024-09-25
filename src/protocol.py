@@ -23,6 +23,10 @@ class Protocol(ABC):
     def start_download(self):
         pass
 
+    @abstractmethod
+    def get_header_value(self):
+        pass
+
     def answer_connection(self):
         logger.info(f"Answering client request")
         error_bite = 0
@@ -55,6 +59,11 @@ class StopAndWait(Protocol):
         self.protocol_bit = 1
         super().__init__(host, addr, file_path)
 
+    @staticmethod
+    def get_header_value(self):
+        return 0
+        
+
     def start_upload(self, dst_host, dst_port):
         logger.info(f"Starting upload with Stop And Wait protocol")
 
@@ -73,7 +82,11 @@ class TCPSAck(Protocol):
     def __init__(self, host, addr, file_path):
         self.protocol_bit = 0
         super().__init__(host, addr, file_path)
-
+        
+    @staticmethod
+    def get_header_value(self):
+        return 1
+    
     def start_upload(self, dst_host, dst_port):
 
         #self.answer_connection(error, error_code)
