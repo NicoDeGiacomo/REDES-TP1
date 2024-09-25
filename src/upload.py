@@ -29,7 +29,7 @@ def upload(host: str, port: int, path: str, file_name: str):
         return errno.ENOENT
     
     logger.info(f"File {file_name} found, proceeding with upload.")
-    client_protocol = protocol.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
+    client_protocol = protocol.StopAndWait("10.0.0.2", (host, port), os.path.join(path, file_name))
     logger.info(f"Stablishing connection with server")
     client_protocol.stablish_connection(Action.UPLOAD.value)
     logger.info(f"Starting file uploading")
@@ -59,7 +59,7 @@ if __name__ == '__main__':
                         help="increase output verbosity")
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
-    parser.add_argument('-H', '--host', action='store', default="localhost",
+    parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="server IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")

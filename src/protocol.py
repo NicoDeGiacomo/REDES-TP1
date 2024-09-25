@@ -8,9 +8,10 @@ logger = logging.getLogger(__name__)
 RANDOM_HOST = 0
 
 class Protocol(ABC):
-    def __init__(self, host, addr, file_path):
+    def __init__(self, host, addr: (str,int), file_path):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind((host, RANDOM_HOST))
+        self.socket.settimeout(1) 
         self.addr = addr
         self.file_path = file_path
         self.protocol_bit = None
@@ -67,7 +68,8 @@ class Protocol(ABC):
         header.extend(file_name_bytes)
         logger.info(f"Handshake header created\n")
 
-        if not self.socket.sendto(header, self.addr):
+        logger.info(f"Addr: {(self.addr[0], int(self.addr[1]))}\n")
+        if not self.socket.sendto(header, (self.addr[0], int(self.addr[1]))):
             return 0
 
     def close(self):
@@ -75,7 +77,7 @@ class Protocol(ABC):
 
 
 class StopAndWait(Protocol):
-    def __init__(self, host, addr, file_path):
+    def __init__(self, host, addr: (str,int), file_path):
         super().__init__(host, addr, file_path)
         self.protocol_bit = 1
 
@@ -88,19 +90,20 @@ class StopAndWait(Protocol):
         with open(self.file_path, 'rb') as file:
             seq_num = 0
             while True:
-                data = file.read(1024)
+                data = file.read(1024) # calcular tamaño real 65507 - 4 (header size)
                 if not data:
                     eof = 1
                 else:
                     eof = 0
 
-                header = self.create_header(seq_num, eof)
+                header = self.create_header(seq_num, eof) #falta bit de eoc 
                 packet = header + data
 
-                MAX_RETRANSMISSIONS = 5
+                MAX_RETRANSMISSIONS = 15
                 retries = 0
                 while retries < MAX_RETRANSMISSIONS:
                     try:
+                        logger.info(f"Sending Packet: {header}")
                         self.socket.sendto(packet, self.addr)
                         ack, _ = self.socket.recvfrom(2)
                         ack_seq_num = self.parse_ack(ack)
@@ -120,15 +123,16 @@ class StopAndWait(Protocol):
 
     def start_download(self):
         logger.info(f"Starting download with Stop And Wait protocol from Address: {self.addr}")
+        self.socket.settimeout(15) 
         with open(self.file_path, 'wb') as file: 
             seq_num = 0
             while True:
-                packet, _ = self.socket.recvfrom(1026)
+                packet, _ = self.socket.recvfrom(1026) # calcular tamaño real 65507
                 header = packet[:1]
                 data = packet[1:]
 
                 recv_seq_num, eof = self.parse_header(header)
-
+                logger.info(f"Receiving Packet: {header}")
                 if recv_seq_num == seq_num:
                     file.write(data)
                     ack = self.create_ack(seq_num)
