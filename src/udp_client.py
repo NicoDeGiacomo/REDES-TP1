@@ -16,7 +16,7 @@ class UDPClient:
         self.host = host
         self.port = port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        #self.client.bind((self.host, self.port))
+        self.client.bind((self.host, self.port))
         logger.info(f"UDP client bound to {self.host}:{self.port}")
         self.header = UdpHeader()
 

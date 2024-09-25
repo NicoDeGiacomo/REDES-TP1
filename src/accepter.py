@@ -7,10 +7,11 @@ from protocol import StopAndWait, TCPSAck
 from uploader import Uploader
 
 
+
 logger = logging.getLogger(__name__)
 
 class Accepter:
-    def __init__(self, storage, host='localhost', port=12345, ):
+    def __init__(self, storage, host, port):
         self.storage_path = storage
         self.host = host
         self.port = port
@@ -18,7 +19,7 @@ class Accepter:
         self.socket.bind((self.host, self.port))
         logger.info(f"Server accepter bounded to {self.host}:{self.port}")
 
-    def receive_client(self, ):
+    def receive_client(self):
         logger.info(f'Server waiting for client at {self.host}:{self.port}')
         header, addr = self.socket.recvfrom(100)
         action, protocol, file_name= self._parse_header(header)
@@ -26,7 +27,7 @@ class Accepter:
         file_path=os.path.join(self.storage_path, file_name)
 
         #TODO: check error cases (memory/ports/filename usage) depending on the action. In case of error, answer here to the respective client
-        new_client_protocol = StopAndWait(self.host, addr, file_path) if action == 1 else TCPSAck(self.host, addr, file_path)
+        new_client_protocol = StopAndWait(self.host, addr, file_path) if protocol == 1 else TCPSAck(self.host, addr, file_path)
 
         new_client_action = Uploader(new_client_protocol) if action == 1 else Downloader(new_client_protocol)
         return new_client_action

@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class TestUDPClient(unittest.TestCase):
-    def run_clients(self, message: str):
+    def run_clients(self, message: bytes):
         host1, port1 = '127.0.0.1', 9999
         host2, port2 = '127.0.0.1', 8888
         
@@ -17,7 +17,7 @@ class TestUDPClient(unittest.TestCase):
         def client1_task():
             client1.send_message_to(message, host2, port2)
             header, payload = client1.receive_message()
-            self.assertEqual(payload.decode(), message)
+            self.assertEqual(payload.decode(), message.decode())
             self.assertEqual(header.src_port, port1)
             self.assertEqual(header.dst_host, host2)
             self.assertEqual(header.dst_port, port2)
@@ -25,8 +25,8 @@ class TestUDPClient(unittest.TestCase):
 
         def client2_task():
             header, payload = client2.receive_message()
-            client2.send_message_to(payload.decode(), host1, port1)
-            self.assertEqual(payload.decode(), message)
+            client2.send_message_to(payload, host1, port1)
+            self.assertEqual(payload.decode(), message.decode())
             self.assertEqual(header.src_port, port2)
             self.assertEqual(header.dst_host, host1)
             self.assertEqual(header.dst_port, port1)
@@ -48,7 +48,7 @@ class TestUDPClient(unittest.TestCase):
 
     def test_udp_communication(self):
         logger.info("Starting UDP communication test");
-        message = "Hello from Client 1"
+        message = "Hello from Client 1".encode()
         self.run_clients(message)
 
 if __name__ == '__main__':
