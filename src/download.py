@@ -1,17 +1,22 @@
 import argparse
 import logging
 import os
-
+import protocol
+from action import Action
 
 logger = logging.getLogger(__name__)
 
 
-def download(host: str, port: str, path: str, file_name: str):
+def download(host: str, port: int, path: str, file_name: str):
     logger.info(f"""Starting client downloading file {file_name} into location {path} 
         from server {host}:{port}.""")
     if not os.path.exists(path):
          os.makedirs(path)  # TODO: Should handle errors
-    # TODO: Add download logic here
+    client_protocol = protocol.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
+    logger.info(f"Stablishing connection with server")
+    client_protocol.stablish_connection(Action.DOWNLOAD.value)
+    logger.info(f"Starting file uploading")
+    client_protocol.start_download()
     return 0
 
 if __name__ == '__main__':
@@ -26,7 +31,7 @@ if __name__ == '__main__':
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="localhost",
                         help="server IP address")
-    parser.add_argument('-p', '--port', action='store', default="12345",
+    parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
     parser.add_argument('-d', '--dst', action='store', default="./client_storage",
                         help="destination file path")
