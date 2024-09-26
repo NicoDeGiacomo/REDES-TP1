@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-#import protocol.udp_client as udp_client
 import accepter as accepter
 
 logger = logging.getLogger(__name__)
@@ -36,8 +35,8 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--storage', action='store', default="files/server_storage",
                         help="storage dir path")
 
+    global args
     args = parser.parse_args()
-
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format=log_format)

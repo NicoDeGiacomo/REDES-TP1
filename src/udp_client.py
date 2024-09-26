@@ -1,9 +1,10 @@
 import socket
 import logging
-import struct
 
 logger = logging.getLogger(__name__)
 
+HANDSHAKE_TIMEOUT = 5
+HANDSHAKE_RETRY = 1
 
 class UdpHeader:
     def __init__(self) -> None:
@@ -11,60 +12,46 @@ class UdpHeader:
         self.src_port = None
         self.dst_port = None
 
+
 class UDPClient:
     def __init__(self, host: str, port: int) -> None:
         self.host = host
         self.port = port
+        self.max_retry = HANDSHAKE_RETRY
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        logger.info(f"attempting to bind to {self.host}:{self.port}")
         self.client.bind((self.host, self.port))
         logger.info(f"UDP client bound to {self.host}:{self.port}")
+        self.set_timeout(HANDSHAKE_TIMEOUT)
         self.header = UdpHeader()
 
-    def send_message_to(self, message: bytearray, dst_host: str, dst_port: int) -> bool:
-        self.client.sendto(message, (dst_host, dst_port))
-        logger.info(f"Message sent to {dst_host}:{dst_port}")
-        # retries = 3     # number of retries
-        # timeout = 1     # seconds
+    def set_timeout(self, timeout: int | None) -> None:
+        self.client.settimeout(timeout)
 
-        # self.client.settimeout(timeout)
+    def set_retry(self, retry: int) -> None:
+        self.max_retry = retry
 
-        # while retries > 0:
-        #     try:
-        #         self.client.sendto(message, (dst_host, dst_port))
-        #         logger.info(f"Message sent to {dst_host}:{dst_port}")
-                
-        #         ack, addr = self.client.recvfrom(1024)
-
-        #         if ack == b'ACK':
-        #             logger.info(f"Received ACK from {addr}")
-        #             return True
-        #     except socket.timeout:
-        #         logger.error(f"Timeout sending message to {dst_host}:{dst_port}")
-        #         retries -= 1
-        #     except Exception as e:
-        #         logger.error(f"Error sending message: {e}")
-        #         retries -= 1
-
-        # logger.error(f"Failed to send message to {dst_host}:{dst_port}")
-        # self.client.close()
-
-        # return False
+    def send_message_to(self, message: bytearray, dst_host) -> bool:
+        retries = 0
+        while retries < self.max_retry:
+            try:
+                self.client.sendto(message, dst_host)
+                return True
+            except socket.timeout:
+                retries += 1
+                logger.warning("Timeout, resending packet")
+        if retries == self.max_retry:
+            logger.error("Max retransmissions reached. Aborting.")
+            return False
+        logger.error(f"Failed to send message to {self.header.dst_host}:{self.header.dst_port}")
+        # TODO: como es handling en este caso?
+        return False
         
-    def receive_message(self) -> tuple[UdpHeader, bytes]:
-        # wipe the header
-        self.header = UdpHeader()
+    def receive_message(self, buffer: int):
         logger.info("Waiting for packet...")
-        packet, addr = self.client.recvfrom(65565)
+        packet, addr = self.client.recvfrom(buffer)
         logger.info(f"Received packet from {addr}")
-        # Parse UDP header
-        self.header.dst_host = addr[0]
-        self.header.dst_port = addr[1]
-        self.header.src_port = self.port
-        # Print UDP header and payload
-        logger.info(f"Source Port: {self.header.src_port}")
-        logger.info(f"Destination Port: {self.header.dst_port}")
-        logger.info(f"Payload: {packet.decode(errors='ignore')}")  # decode as string, ignoring errors for non-text
-        return self.header, packet
+        return packet, addr
 
     def close(self):
         self.client.close()
