@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-import protocol
+import stop_and_wait
 from action import Action
 
 logger = logging.getLogger(__name__)
@@ -11,13 +11,14 @@ def download(host: str, port: int, path: str, file_name: str):
     logger.info(f"""Starting client downloading file {file_name} into location {path} 
         from server {host}:{port}.""")
     if not os.path.exists(path):
-         os.makedirs(path)  # TODO: Should handle errors
-    client_protocol = protocol.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
-    logger.info(f"Stablishing connection with server")
-    client_protocol.stablish_connection(Action.DOWNLOAD.value)
+        os.makedirs(path)  # TODO: Should handle errors
+    client_protocol = stop_and_wait.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
+    logger.info(f"Establishing connection with server")
+    client_protocol.establish_connection(Action.DOWNLOAD.value)
     logger.info(f"Starting file uploading")
     client_protocol.start_download()
     return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -37,9 +38,8 @@ if __name__ == '__main__':
                         help="destination file path")
     parser.add_argument('-n', '--name', action='store', default="file.txt",
                         help="file name")
-
+    global args
     args = parser.parse_args()
-
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format=log_format)

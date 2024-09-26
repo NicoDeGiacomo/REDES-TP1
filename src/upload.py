@@ -2,10 +2,8 @@ import argparse
 import logging
 import os
 import errno
-#import protocol.udp_client as udp_client
-import protocol
+import stop_and_wait
 from action import Action
-
 
 logger = logging.getLogger(__name__)
 
@@ -29,25 +27,14 @@ def upload(host: str, port: int, path: str, file_name: str):
         return errno.ENOENT
     
     logger.info(f"File {file_name} found, proceeding with upload.")
-    client_protocol = protocol.StopAndWait("10.0.0.2", (host, port), os.path.join(path, file_name))
-    logger.info(f"Stablishing connection with server")
-    client_protocol.stablish_connection(Action.UPLOAD.value)
+    client_protocol = stop_and_wait.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
+    logger.info(f"Establishing connection with server")
+    client_protocol.establish_connection(Action.UPLOAD.value)
     logger.info(f"Starting file uploading")
     client_protocol.start_upload()
 
-    
-
-
-    """upload_bit = 1
-    #S&W
-    protocol_bit = 1
-    file_name_bytes = file_name.encode() # utf-8 by default
-    first_byte = (upload_bit << 7) | (protocol_bit << 6) | file_name_length
-    header = bytearray()
-    header.append(first_byte)
-    header.extend(file_name_bytes)
-    logger.info(f"Handshake header created\n")"""
     return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -68,8 +55,8 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name', action='store', default="velociraptor.jpg",
                         help="file name")
 
+    global args
     args = parser.parse_args()
-
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format=log_format)
