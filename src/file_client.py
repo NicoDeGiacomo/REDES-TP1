@@ -10,10 +10,10 @@ class FileClient:
     def close(self):
         self.file.close()
 
-    def read(self, buffer):
+    def read(self, buffer_size):
         if self.file and not self.eof:
-            data = self.file.read(buffer)
-            if not data:
+            data = self.file.read(buffer_size)
+            if len(data) < buffer_size: #
                 self.eof = 1
             return data
 

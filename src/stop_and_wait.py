@@ -15,13 +15,13 @@ class StopAndWait(Protocol):
         return 1
 
     def start_upload(self):
-        self.socket.set_timeout(1)
+        self.socket.set_timeout(0.001)
         self.socket.set_retry(15)
         logger.info(f"Starting upload with Stop And Wait protocol to Address: {self.addr}")
         self.file.open('rb')
         seq_num = 0
         while True:
-            data = self.file.read(1024)  # calcular tamaño real 65507 - 4 (header size)
+            data = self.file.read(1490)  # calcular tamaño real 65507 - 4 (header size)
             header = create_header(seq_num, self.file.eof)  #falta bit de eoc
             packet = header + data
             retries = 0
@@ -57,7 +57,7 @@ class StopAndWait(Protocol):
         self.file.open('wb')
         seq_num = 0
         while True:
-            packet, _ = self.socket.receive_message(1026)
+            packet, _ = self.socket.receive_message(1500)
             header = packet[:1]
             data = packet[1:]
             recv_seq_num, eof = parse_header(header)
