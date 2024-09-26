@@ -27,7 +27,7 @@ def upload(host: str, port: int, path: str, file_name: str):
         return errno.ENOENT
     
     logger.info(f"File {file_name} found, proceeding with upload.")
-    client_protocol = stop_and_wait.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
+    client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
     logger.info(f"Establishing connection with server")
     client_protocol.establish_connection(Action.UPLOAD.value)
     logger.info(f"Starting file uploading")

@@ -74,6 +74,7 @@ class StopAndWait(Protocol):
                 self.socket.send_message_to(ack, self.addr)
         self.file.close()
         super().close()
+        logger.info(f"File downloaded successfully")
 
 
 def create_header(seq_num, eof):

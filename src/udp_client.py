@@ -31,9 +31,10 @@ class UDPClient:
     def set_retry(self, retry: int) -> None:
         self.max_retry = retry
 
-    def send_message_to(self, message: bytearray, dst_host) -> bool:
+    def send_message_to(self, message: bytearray, dst_addr: (str, int)) -> bool:
         retries = 0
-        self.client.sendto(message, dst_host)
+        logger.info(f"Sending message of length: {len(message)} to{dst_addr}.")
+        self.client.sendto(message, dst_addr)
 
         
     def receive_message(self, buffer: int):
