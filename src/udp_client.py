@@ -33,25 +33,17 @@ class UDPClient:
 
     def send_message_to(self, message: bytearray, dst_host) -> bool:
         retries = 0
-        while retries < self.max_retry:
-            try:
-                self.client.sendto(message, dst_host)
-                return True
-            except socket.timeout:
-                retries += 1
-                logger.warning("Timeout, resending packet")
-        if retries == self.max_retry:
-            logger.error("Max retransmissions reached. Aborting.")
-            return False
-        logger.error(f"Failed to send message to {self.header.dst_host}:{self.header.dst_port}")
-        # TODO: como es handling en este caso?
-        return False
+        self.client.sendto(message, dst_host)
+
         
     def receive_message(self, buffer: int):
         logger.info("Waiting for packet...")
-        packet, addr = self.client.recvfrom(buffer)
-        logger.info(f"Received packet from {addr}")
-        return packet, addr
+        try:
+            packet, addr = self.client.recvfrom(buffer)
+            logger.info(f"Received packet from {addr}")
+            return packet, addr
+        except socket.timeout:
+            return None, None
 
     def close(self):
         self.client.close()

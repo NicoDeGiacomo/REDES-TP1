@@ -2,6 +2,7 @@
 from file_client import FileClient
 from protocol import Protocol, logger
 
+MAX_RETRIES = 15
 
 class StopAndWait(Protocol):
     def __init__(self, host, addr: (str, int), file_path):
@@ -23,15 +24,29 @@ class StopAndWait(Protocol):
             data = self.file.read(1024)  # calcular tamaño real 65507 - 4 (header size)
             header = create_header(seq_num, self.file.eof)  #falta bit de eoc
             packet = header + data
-            logger.info(f"Sending Packet: {header}")
-            self.socket.send_message_to(packet, self.addr)
-            ack, _ = self.socket.receive_message(2)
-            ack_seq_num = parse_ack(ack)
-            if ack_seq_num == seq_num:
-                break
+            retries = 0
+            while True:
+                logger.info(f"Sending Packet: {header}, with ")
+                self.socket.send_message_to(packet, self.addr)
+                ack, addr = self.socket.receive_message(2)
+                #if self.addr != addr:
+                if ack is None:
+                    retries += 1
+                    continue
+
+                ack_seq_num = parse_ack(ack)
+                if ack_seq_num == seq_num:
+                    break
+
+                if retries > MAX_RETRIES:
+                    self.file.close()
+                    super().close()
+                    return False
+
             if self.file.eof:
                 break
             seq_num = (seq_num + 1) % 2
+
         self.file.close()
         super().close()
 
