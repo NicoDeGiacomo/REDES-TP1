@@ -12,10 +12,10 @@ def download(host: str, port: int, path: str, file_name: str):
         from server {host}:{port}.""")
     if not os.path.exists(path):
         os.makedirs(path)  # TODO: Should handle errors
-    client_protocol = stop_and_wait.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
+    client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
     logger.info(f"Establishing connection with server")
     client_protocol.establish_connection(Action.DOWNLOAD.value)
-    logger.info(f"Starting file uploading")
+    logger.info(f"Starting file download")
     client_protocol.start_download()
     return 0
 
@@ -30,13 +30,13 @@ if __name__ == '__main__':
                         help="increase output verbosity")
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
-    parser.add_argument('-H', '--host', action='store', default="localhost",
+    parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="server IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
     parser.add_argument('-d', '--dst', action='store', default="./files/client_storage",
                         help="destination file path")
-    parser.add_argument('-n', '--name', action='store', default="file.txt",
+    parser.add_argument('-n', '--name', action='store', default="velociraptor.jpg",
                         help="file name")
     global args
     args = parser.parse_args()
