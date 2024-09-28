@@ -13,6 +13,7 @@ class UdpHeader:
         self.dst_port = None
 
 
+
 class UDPClient:
     def __init__(self, host: str, port: int) -> None:
         self.host = host
@@ -24,6 +25,7 @@ class UDPClient:
         logger.info(f"UDP client bound to {self.host}:{self.port}")
         self.set_timeout(HANDSHAKE_TIMEOUT)
         self.header = UdpHeader()
+        self.packet_number = 1
 
     def set_timeout(self, timeout: int | None) -> None:
         self.client.settimeout(timeout)
@@ -41,10 +43,16 @@ class UDPClient:
         logger.info("Waiting for packet...")
         try:
             packet, addr = self.client.recvfrom(buffer)
-            logger.info(f"Received packet from {addr}")
+            logger.info(f"Received packet: {self.packet_number} from {addr}")
+            self.packet_number += 1
             return packet, addr
         except socket.timeout:
+            logger.info("Timeout triggered")
             return None, None
+        except Exception as e:  # Captura cualquier otra excepción
+            logger.error(f"An unexpected error occurred: {e}")
+            return None, None
+
 
     def close(self):
         self.client.close()

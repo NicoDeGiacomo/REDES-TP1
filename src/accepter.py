@@ -30,7 +30,7 @@ class Accepter:
         new_client_protocol = StopAndWait(self.socket.host, addr, file_path) if ptocol == 1 \
             else TCPSAck(self.socket.host, addr, file_path)
 
-        new_client_action = Uploader(new_client_protocol) if action == 1 else Downloader(new_client_protocol)
+        new_client_action = Uploader(new_client_protocol) if action == 0 else Downloader(new_client_protocol)
         return new_client_action
 
     @staticmethod

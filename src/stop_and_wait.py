@@ -15,7 +15,7 @@ class StopAndWait(Protocol):
         return 1
 
     def start_upload(self):
-        self.socket.set_timeout(0.001)
+        self.socket.set_timeout(0.01)
         self.socket.set_retry(15)
         logger.info(f"Starting upload with Stop And Wait protocol to Address: {self.addr}")
         self.file.open('rb')
@@ -26,10 +26,16 @@ class StopAndWait(Protocol):
             packet = header + data
             retries = 0
             while True:
-                logger.info(f"Sending Packet: {header}, with ")
+                logger.info(f"Sending Packet: {header}, for the {retries + 1} time ")
                 self.socket.send_message_to(packet, self.addr)
                 ack, addr = self.socket.receive_message(2)
                 #if self.addr != addr:
+                if retries > MAX_RETRIES:
+                    logger.info(f"CONNECTION WITH DOWNLOADER LOST")
+                    self.file.close()
+                    super().close()
+                    return False
+
                 if ack is None:
                     retries += 1
                     continue
@@ -38,10 +44,7 @@ class StopAndWait(Protocol):
                 if ack_seq_num == seq_num:
                     break
 
-                if retries > MAX_RETRIES:
-                    self.file.close()
-                    super().close()
-                    return False
+
 
             if self.file.eof:
                 break
@@ -51,17 +54,24 @@ class StopAndWait(Protocol):
         super().close()
 
     def start_download(self):
-        self.socket.set_timeout(15)
+        self.socket.set_timeout(0.15)
         self.socket.set_retry(1)
         logger.info(f"Starting download with Stop And Wait protocol from Address: {self.addr}")
         self.file.open('wb')
         seq_num = 0
         while True:
             packet, _ = self.socket.receive_message(1500)
+            if packet is None:
+                logger.info(f"CONNECTION WITH DOWNLOADER LOST")
+                self.file.delete()
+                super().close()
+                return False
             header = packet[:1]
             data = packet[1:]
             recv_seq_num, eof = parse_header(header)
             logger.info(f"Receiving Packet: {header}")
+
+
             if recv_seq_num == seq_num:
                 self.file.write(data)
                 ack = create_ack(seq_num)

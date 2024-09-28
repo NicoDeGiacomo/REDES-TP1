@@ -1,3 +1,5 @@
+import os
+
 class FileClient:
     def __init__(self, file_path):
         self.eof = 0
@@ -20,3 +22,7 @@ class FileClient:
     def write(self, data):
         if self.file:
             self.file.write(data)
+
+    def delete(self):
+        self.close()
+        os.remove(self.file_path)

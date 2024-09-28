@@ -17,7 +17,7 @@ class Uploader(threading.Thread):
     def run(self):
         logger.info(f"Starting upload")
         self.protocol.answer_connection()
-        self.protocol.start_download()
+        self.protocol.start_upload()
 
     def stop(self):
         self.uploading = False
