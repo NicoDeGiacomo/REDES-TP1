@@ -9,6 +9,47 @@ logger = logging.getLogger(__name__)
 RANDOM_HOST = 0
 
 
+class Header:
+    def __init__(self, eof, eoc, seq_num):
+        eoc_bit = 1 if eoc else 0
+        eof_bit = 1 if eof else 0
+        if not (0 <= self.seq_num < 2**30):
+            raise ValueError("Sequence number must be in range [0, 2^30 - 1]")
+        self.eof = eof_bit
+        self.eoc = eoc_bit
+        self.seq_num = seq_num
+    def get_bytes(self):
+        header = (self.eoc << 31) | (self.eof << 30) | self.seq_num
+        return bytearray(header.to_bytes(4, byteorder='big'))
+    
+    def parse_header(header_bytes: bytearray):
+        # Ensure the input is 4 bytes
+        if len(header_bytes) != 4:
+            raise ValueError("Header must be exactly 4 bytes long")
+        
+        # Convert the bytearray or bytes back to a 32-bit integer (big-endian)
+        header = int.from_bytes(header_bytes, byteorder='big')
+        
+        # Extract the EOC bit (bit 31)
+        eoc_bit = (header >> 31) & 0b1
+        
+        # Extract the EOF bit (bit 30)
+        eof_bit = (header >> 30) & 0b1
+        
+        # Extract the sequence number (bits 0-29)
+        sequence_number = header & 0x3FFFFFFF  # Mask to get lower 30 bits
+        
+        # Convert bits to booleans and return the parsed values
+        return Header(eof_bit, eoc_bit, sequence_number)
+
+
+
+class Packet:
+    def __init__(self, header, payload):
+        self.header = header
+        self.payload = payload
+
+
 class Protocol(ABC):
     def __init__(self, host, addr: (str, int), file_path):
         self.socket = UDPClient(host, RANDOM_HOST)
@@ -72,3 +113,36 @@ class Protocol(ABC):
 
     def close(self):
         self.socket.close()
+
+def create_ack(seq_num, eoc):
+    # Ensure sequence number is within range (0 to 2^30 - 1)
+    if not (0 <= seq_num < 2**30):
+        raise ValueError("Sequence number must be in range [0, 2^30 - 1]")
+    
+    # Convert the EOC bit to a bit value (0 or 1)
+    eoc_bit = 1 if eoc else 0
+    
+    # Pack the bits into a 32-bit integer
+    header = (eoc_bit << 31) | seq_num
+    
+    # Convert the 32-bit integer into a 4-byte array (big-endian)
+    header_bytes = header.to_bytes(4, byteorder='big')
+    
+    # Return the header as a bytearray
+    return bytearray(header_bytes)
+
+
+def parse_ack(ack):
+    if len(ack) != 4:
+        raise ValueError("Header bytearray must be exactly 4 bytes long")
+    
+    # Convert the bytearray back to a 32-bit integer (big-endian)
+    header = int.from_bytes(ack, byteorder='big')
+    
+    # Extract the EOC bit (bit 31)
+    eoc = (header >> 31) & 1
+    
+    # Extract the 30-bit sequence number (bits 0-30)
+    sequence_number = header & 0x7FFFFFFF  # Mask for the lower 31 bits
+    
+    return eoc, sequence_number

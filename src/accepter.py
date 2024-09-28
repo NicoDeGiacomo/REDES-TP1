@@ -4,7 +4,7 @@ import os
 from udp_client import UDPClient
 from uploader import Uploader
 from downloader import Downloader
-from tcp_ack import TCPAck
+from tcp_sack import TCPSAck
 from stop_and_wait import StopAndWait
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class Accepter:
 
         #TODO: check error cases (memory/ports/filename usage) depending on the action. In case of error, answer here to the respective client
         new_client_protocol = StopAndWait(self.socket.host, addr, file_path) if ptocol == 1 \
-            else TCPAck(self.socket.host, addr, file_path)
+            else TCPSAck(self.socket.host, addr, file_path)
 
         new_client_action = Uploader(new_client_protocol) if action == 1 else Downloader(new_client_protocol)
         return new_client_action

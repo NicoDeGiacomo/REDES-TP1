@@ -1,7 +1,7 @@
 from protocol import Protocol, logger
 
 
-class TCPAck(Protocol):
+class TCPSAck(Protocol):
     def __init__(self, host, addr, file_path):
         super().__init__(host, addr, file_path)
         self.protocol_bit = 0
