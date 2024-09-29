@@ -18,6 +18,7 @@ class Header:
         self.eof = eof_bit
         self.eoc = eoc_bit
         self.seq_num = seq_num
+        
     def get_bytes(self):
         header = (self.eoc << 31) | (self.eof << 30) | self.seq_num
         return bytearray(header.to_bytes(4, byteorder='big'))
@@ -48,6 +49,8 @@ class Packet:
     def __init__(self, header, payload):
         self.header = header
         self.payload = payload
+        self.retries = 0
+        self.retransmit = False
 
 
 class Protocol(ABC):
