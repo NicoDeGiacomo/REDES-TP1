@@ -4,19 +4,22 @@ import os
 import errno
 import stop_and_wait
 from action import Action
+from tcp_sack_sender import TCPSAckSender
 
 logger = logging.getLogger(__name__)
 
 
-def upload(host: str, port: int, path: str, file_name: str):
+def upload(host: str, port: int, path: str, file_name: str, protocol: int) -> int:
     logger.info(f"""Starting client uploading file {file_name} at location {path} 
         to server {host}:{port}.""")
     if not os.path.exists(path):
         logger.error(f"Directory does not exist: {path}")
         return errno.ENOENT
+    if protocol != 0 and protocol != 1:
+        logger.error(f"Invalid protocol: {protocol}. Must be 0 or 1.")
+        return errno.EINVAL
 
     file_name_length = len(file_name)
-
     if file_name_length > 63:
         logger.error(f"Filename length is {file_name_length}. Must be 1-63 characters long.")
         return errno.EINVAL
@@ -27,7 +30,10 @@ def upload(host: str, port: int, path: str, file_name: str):
         return errno.ENOENT
     
     logger.info(f"File {file_name} found, proceeding with upload.")
-    client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
+    if protocol == 0:
+        client_protocol = TCPSAckSender(10, 5, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
+    else:
+        client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
     logger.info(f"Establishing connection with server")
     client_protocol.establish_connection(Action.UPLOAD.value)
     logger.info(f"Starting file uploading")
@@ -54,6 +60,8 @@ if __name__ == '__main__':
                         help="source file path")
     parser.add_argument('-n', '--name', action='store', default="velociraptor.jpg",
                         help="file name")
+    parser.add_argument('-P', '--protocol', action='store', default=0,
+                        help="protocol to use (0: TCP + SACK, 1: Stop and Wait)")
 
     global args
     args = parser.parse_args()
@@ -65,4 +73,4 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO, format=log_format)
 
-    upload(args.host, args.port, args.src, args.name)
+    upload(args.host, args.port, args.src, args.name, args.protocol)

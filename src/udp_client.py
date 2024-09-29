@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 HANDSHAKE_TIMEOUT = 5
-HANDSHAKE_RETRY = 1
+#HANDSHAKE_RETRY = 1
 
 class UdpHeader:
     def __init__(self) -> None:
@@ -18,7 +18,7 @@ class UDPClient:
     def __init__(self, host: str, port: int) -> None:
         self.host = host
         self.port = port
-        self.max_retry = HANDSHAKE_RETRY
+        #self.max_retry = HANDSHAKE_RETRY
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         logger.info(f"attempting to bind to {self.host}:{self.port}")
         self.client.bind((self.host, self.port))
@@ -30,24 +30,23 @@ class UDPClient:
     def set_timeout(self, timeout: int | None) -> None:
         self.client.settimeout(timeout)
 
-    def set_retry(self, retry: int) -> None:
-        self.max_retry = retry
+    # def set_retry(self, retry: int) -> None:
+    #     self.max_retry = retry
 
     def send_message_to(self, message: bytearray, dst_addr: (str, int)) -> bool:
-        retries = 0
-        logger.info(f"Sending message of length: {len(message)} to{dst_addr}.")
+        logger.debug(f"Sending message of length: {len(message)} to{dst_addr}.")
         self.client.sendto(message, dst_addr)
 
         
     def receive_message(self, buffer: int):
-        logger.info("Waiting for packet...")
+        logger.debug("Waiting for packet...")
         try:
             packet, addr = self.client.recvfrom(buffer)
-            logger.info(f"Received packet: {self.packet_number} from {addr}")
+            logger.debug(f"Received packet: {self.packet_number} from {addr}")
             self.packet_number += 1
             return packet, addr
         except socket.timeout:
-            logger.info("Timeout triggered")
+            logger.debug("Timeout triggered")
             return None, None
         except Exception as e:  # Captura cualquier otra excepción
             logger.error(f"An unexpected error occurred: {e}")

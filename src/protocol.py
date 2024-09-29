@@ -23,6 +23,7 @@ class Header:
         header = (self.eoc << 31) | (self.eof << 30) | self.seq_num
         return bytearray(header.to_bytes(4, byteorder='big'))
     
+    @staticmethod
     def parse_header(header_bytes: bytearray):
         # Ensure the input is 4 bytes
         if len(header_bytes) != 4:
