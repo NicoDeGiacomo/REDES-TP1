@@ -2,6 +2,7 @@ import argparse
 import errno
 import logging
 import os
+from lib.lib import validate_port
 import stop_and_wait
 from action import Action
 from tcp_sack_receiver import TCPSAckKReceiver
@@ -50,7 +51,7 @@ if __name__ == '__main__':
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="server IP address")
-    parser.add_argument('-p', '--port', action='store', default=12345,
+    parser.add_argument('-p', '--port', action='store', default=12345, type=validate_port, 
                         help="server port")
     parser.add_argument('-d', '--dst', action='store', default="./files/client_storage",
                         help="destination file path")
