@@ -1,5 +1,6 @@
 import socket
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,8 @@ class UDPClient:
             return None, None
         except Exception as e:  # Captura cualquier otra excepción
             logger.error(f"An unexpected error occurred: {e}")
-            return None, None
+            time.sleep(100)
+            raise e
 
     def close(self):
         self.client.close()

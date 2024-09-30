@@ -90,14 +90,15 @@ class Protocol(ABC):
         status, new_addr = self.socket.receive_message(1)
         first_byte = status[0]
         error = (first_byte >> 7) & 0b00000001
-        # error_code = first_byte & 0b01111111
+        error_code = first_byte & 0b01111111
 
         if not error:
             logger.info("Connection successful")
             self.addr = new_addr
             return True
         else:
-            # TODO: handle error code
+            logger.error(f"Error code:{error_code} {"No such file in server" if error_code == 2 
+            else "File already exists in server" if error_code == 1 else "No memory left"} connection failed")
             return False
 
     def establish_connection(self, action):

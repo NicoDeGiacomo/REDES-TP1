@@ -1,6 +1,7 @@
 import logging
 import os
 
+from action import Action
 from udp_client import UDPClient
 from uploader import Uploader
 from downloader import Downloader
@@ -36,6 +37,33 @@ class Accepter:
         # TODO: check error cases (memory/ports/filename usage)
         #  depending on the action.
         #  In case of error, answer here to the respective client
+
+        error_code = 0
+        error_bite = 0
+        # Memory
+        # if action == 0:
+        #     total, used, free = shutil.disk_usage(self.storage_path)
+        #     if free < 10 * 1024 * 1024:
+        #         logger.error("Not enough space available for the upload.")
+        #         error_code = 3
+
+        # File name
+        if action == Action.UPLOAD.value and os.path.exists(file_path):
+            logger.error(f"File '{file_name}' already exists.")
+            logger.debug(f"File '{file_name}' already exists.")
+            error_code = 1
+
+        if action == Action.DOWNLOAD.value and (not os.path.exists(file_path)):
+            logger.error(f"File '{file_name}' does not exists.")
+            logger.debug(f"File '{file_name}' does not exists.")
+            error_code = 2
+
+            # check error cases, In case of error, send message to the client
+        if error_code:
+            error_bite = 1
+            self.answer_connection(error_bite, error_code, addr)
+            return None
+
         if action == 0:
             new_client_protocol = StopAndWait(self.socket.host, addr,
                                               file_path) if ptocol == 1 \
@@ -63,3 +91,10 @@ class Accepter:
 
     def close(self):
         self.socket.close()
+
+    def answer_connection(self, error_bite, error_code, addr):
+        logger.info("Answering client request")
+        answer_header = bytearray()
+        first_byte = (error_bite << 7) | error_code
+        answer_header.append(first_byte)
+        self.socket.send_message_to(answer_header, addr)

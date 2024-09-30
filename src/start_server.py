@@ -12,11 +12,15 @@ def start_server(host: str, port: int, storage: str) -> None:
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
     clients_threads = []
     server_accepter = accepter.Accepter(storage, host, port)
-    while True:
-        new_client = server_accepter.receive_client()
-        new_client.start()
-        clients_threads.append(new_client)
-
+    try:
+        while True:
+            new_client = server_accepter.receive_client()
+            if new_client is not None:
+                new_client.start()
+                clients_threads.append(new_client)
+    except KeyboardInterrupt:
+        for client in clients_threads:
+            client.join()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

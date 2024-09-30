@@ -34,10 +34,11 @@ def download(host: str, port: int, path: str, file_name: str,
                                                     os.path.join(path,
                                                                  file_name))
     logger.info("Establishing connection with server")
-    client_protocol.establish_connection(Action.DOWNLOAD.value)
-    logger.info("Starting file download")
-    client_protocol.start_download()
-    return 0
+    if client_protocol.establish_connection(Action.DOWNLOAD.value):
+        logger.info("Starting file download")
+        client_protocol.start_download()
+        return 0
+    return 1
 
 
 if __name__ == '__main__':
@@ -72,4 +73,4 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO, format=log_format)
 
-    download(args.host, args.port, args.dst, args.name, args.protocol)
+    download(args.host, args.port, args.dst, args.name, int(args.protocol))

@@ -43,11 +43,12 @@ def upload(host: str, port: int, path: str, file_name: str,
                                                     os.path.join(path,
                                                                  file_name))
     logger.info("Establishing connection with server")
-    client_protocol.establish_connection(Action.UPLOAD.value)
-    logger.info("Starting file uploading")
-    client_protocol.start_upload()
+    if client_protocol.establish_connection(Action.UPLOAD.value):
+        logger.info("Starting file uploading")
+        client_protocol.start_upload()
+        return 0
 
-    return 0
+    return 1
 
 
 if __name__ == '__main__':
