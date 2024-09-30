@@ -14,7 +14,7 @@ class Header:
     def __init__(self, eof, eoc, seq_num):
         eoc_bit = 1 if eoc else 0
         eof_bit = 1 if eof else 0
-        if not (0 <= self.seq_num < 2**30):
+        if not (0 <= seq_num < 2**30):
             raise ValueError("Sequence number must be in range [0, 2^30 - 1]")
         self.eof = eof_bit
         self.eoc = eoc_bit
@@ -62,6 +62,7 @@ class Protocol(ABC):
         self.file_path = file_path
         self.protocol_bit = None
         self.file = FileClient(file_path)
+        self.eoc = 0
 
     @abstractmethod
     def start_upload(self):

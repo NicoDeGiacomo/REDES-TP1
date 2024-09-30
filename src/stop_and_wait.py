@@ -16,7 +16,6 @@ class StopAndWait(Protocol):
 
     def start_upload(self):
         self.socket.set_timeout(0.01)
-        self.socket.set_retry(15)
         logger.info(f"Starting upload with Stop And Wait protocol to Address: {self.addr}")
         self.file.open('rb')
         seq_num = 0
@@ -55,7 +54,6 @@ class StopAndWait(Protocol):
 
     def start_download(self):
         self.socket.set_timeout(0.15)
-        self.socket.set_retry(1)
         logger.info(f"Starting download with Stop And Wait protocol from Address: {self.addr}")
         self.file.open('wb')
         seq_num = 0

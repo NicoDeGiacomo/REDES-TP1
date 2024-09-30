@@ -50,7 +50,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument('-v', '--verbose', action='store_true',
-                        help="increase output verbosity")
+                        help="increase output verbosity", default= True)
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
@@ -74,4 +74,4 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO, format=log_format)
 
-    upload(args.host, args.port, args.src, args.name, args.protocol)
+    upload(args.host, args.port, args.src, args.name, int(args.protocol))

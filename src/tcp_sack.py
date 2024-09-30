@@ -38,8 +38,7 @@ class ACKSACKHeader(Header):
         sack = []
         for i in range(5, len(header_bytes), 4):
             sack.append(int.from_bytes(header_bytes[i:i+4], byteorder='big'))
-        biggest_seq_num_sacked = max(sack)
-        return ACKSACKHeader(eoc_bit, sequence_number, sack_length, sack), biggest_seq_num_sacked
+        return ACKSACKHeader(eoc_bit, sequence_number, sack_length, sack)
 
 
 
