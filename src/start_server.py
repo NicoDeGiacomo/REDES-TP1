@@ -3,7 +3,6 @@ import logging
 import os
 import accepter
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -24,16 +23,17 @@ if __name__ == '__main__':
         description="Starts File Transfer Server",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    
+
     parser.add_argument('-v', '--verbose', action='store_true',
-                        help="increase output verbosity", default = True)
+                        help="increase output verbosity", default=True)
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="service IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="service port")
-    parser.add_argument('-s', '--storage', action='store', default="files/server_storage",
+    parser.add_argument('-s', '--storage', action='store',
+                        default="files/server_storage",
                         help="storage dir path")
 
     global args

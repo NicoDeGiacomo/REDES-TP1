@@ -1,9 +1,5 @@
-import socket
-import threading
 import logging
-from protocol import Protocol
-from tcp_sack import TCPSAck
-from stop_and_wait import StopAndWait
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +11,9 @@ class Uploader(threading.Thread):
         self.protocol = comm_protocol
 
     def run(self):
-        logger.info(f"Starting upload")
+        logger.info("Starting upload")
         self.protocol.answer_connection()
         self.protocol.start_upload()
 
     def stop(self):
         self.uploading = False
-

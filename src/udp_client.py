@@ -4,7 +4,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 HANDSHAKE_TIMEOUT = 5
-#HANDSHAKE_RETRY = 1
+
+
+# HANDSHAKE_RETRY = 1
 
 class UdpHeader:
     def __init__(self) -> None:
@@ -13,12 +15,11 @@ class UdpHeader:
         self.dst_port = None
 
 
-
 class UDPClient:
     def __init__(self, host: str, port: int) -> None:
         self.host = host
         self.port = port
-        #self.max_retry = HANDSHAKE_RETRY
+        # self.max_retry = HANDSHAKE_RETRY
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         logger.info(f"attempting to bind to {self.host}:{self.port}")
         self.client.bind((self.host, self.port))
@@ -33,11 +34,12 @@ class UDPClient:
     # def set_retry(self, retry: int) -> None:
     #     self.max_retry = retry
 
-    def send_message_to(self, message: bytearray, dst_addr: (str, int)) -> bool:
-        logger.debug(f"Sending message of length: {len(message)} to{dst_addr}.")
+    def send_message_to(self, message: bytearray,
+                        dst_addr: (str, int)) -> bool:
+        logger.debug(
+            f"Sending message of length: {len(message)} to{dst_addr}.")
         self.client.sendto(message, dst_addr)
 
-        
     def receive_message(self, buffer: int):
         logger.debug("Waiting for packet...")
         try:
@@ -51,7 +53,6 @@ class UDPClient:
         except Exception as e:  # Captura cualquier otra excepción
             logger.error(f"An unexpected error occurred: {e}")
             return None, None
-
 
     def close(self):
         self.client.close()
