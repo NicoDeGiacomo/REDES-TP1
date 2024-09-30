@@ -1,21 +1,46 @@
 import argparse
+import errno
 import logging
 import os
 import stop_and_wait
 from action import Action
+from tcp_sack_receiver import TCPSAckKReceiver
 
 logger = logging.getLogger(__name__)
 
 
-def download(host: str, port: int, path: str, file_name: str):
-    logger.info(f"""Starting client downloading file {file_name} into location {path} 
-        from server {host}:{port}.""")
+def download(host: str, port: int, path: str, file_name: str,
+             protocol: int) -> int:
+    logger.info(
+        f"Starting client downloading file {file_name} into location {path} "
+        f"from server {host}:{port}.")
     if not os.path.exists(path):
         os.makedirs(path)  # TODO: Should handle errors
-    client_protocol = stop_and_wait.StopAndWait("localhost", (host, port), os.path.join(path, file_name))
-    logger.info(f"Establishing connection with server")
+    if protocol != 0 and protocol != 1:
+        logger.error(f"Invalid protocol: {protocol}. Must be 0 or 1.")
+        return errno.EINVAL
+    file_name_length = len(file_name)
+    if file_name_length > 63:
+        logger.error(
+            f"Filename length is {file_name_length}. "
+            f"Must be 1-63 characters long.")
+        return errno.EINVAL
+
+    file_path = os.path.join(path, file_name)
+    if not os.path.isfile(file_path):
+        logger.error(f"File not found at path: {file_path}")
+        return errno.ENOENT
+
+    if protocol == 0:
+        client_protocol = TCPSAckKReceiver(100, os.path.join(path, file_name),
+                                           "0.0.0.0", (host, port), 0)
+    else:
+        client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port),
+                                                    os.path.join(path,
+                                                                 file_name))
+    logger.info("Establishing connection with server")
     client_protocol.establish_connection(Action.DOWNLOAD.value)
-    logger.info(f"Starting file uploading")
+    logger.info("Starting file download")
     client_protocol.start_download()
     return 0
 
@@ -30,14 +55,18 @@ if __name__ == '__main__':
                         help="increase output verbosity")
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
-    parser.add_argument('-H', '--host', action='store', default="localhost",
+    parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="server IP address")
     parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
-    parser.add_argument('-d', '--dst', action='store', default="./files/client_storage",
+    parser.add_argument('-d', '--dst', action='store',
+                        default="./files/client_storage",
                         help="destination file path")
-    parser.add_argument('-n', '--name', action='store', default="file.txt",
+    parser.add_argument('-n', '--name', action='store',
+                        default="velociraptor.jpg",
                         help="file name")
+    parser.add_argument('-P', '--protocol', action='store', default=0,
+                        help="protocol to use (0: TCP+SACK, 1: Stop and Wait)")
     global args
     args = parser.parse_args()
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
@@ -48,4 +77,4 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO, format=log_format)
 
-    download(args.host, args.port, args.dst, args.name)
+    download(args.host, args.port, args.dst, args.name, args.protocol)

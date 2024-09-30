@@ -1,3 +1,6 @@
+import os
+
+
 class FileClient:
     def __init__(self, file_path):
         self.eof = 0
@@ -13,10 +16,14 @@ class FileClient:
     def read(self, buffer_size):
         if self.file and not self.eof:
             data = self.file.read(buffer_size)
-            if len(data) < buffer_size: #
+            if len(data) < buffer_size:  #
                 self.eof = 1
             return data
 
     def write(self, data):
         if self.file:
             self.file.write(data)
+
+    def delete(self):
+        self.close()
+        os.remove(self.file_path)

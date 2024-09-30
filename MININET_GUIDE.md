@@ -87,3 +87,23 @@ mininet> h1 python3 my_program.py
 mininet> exit
 $ sudo mn -c
 ```
+
+### Run topology
+Inside the file, change the packet loss parameter.
+```bash
+sudo mn --custom topology.py --topo custom --link tc
+```
+```bash
+xterm h1 # server
+python3 src/start_server.py
+```
+```bash
+xterm h2 # velociraptor.jpg
+python3 src/upload.py
+```
+
+```bash
+xterm h3 # natural.jpg
+python3 src/upload.py -n natural.jpg
+```
+

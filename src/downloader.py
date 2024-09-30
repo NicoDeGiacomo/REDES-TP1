@@ -13,10 +13,9 @@ class Downloader(threading.Thread):
         self.protocol = comm_protocol
 
     def run(self):
-        logger.info(f"Starting download ")
+        logger.info("Starting download ")
         self.protocol.answer_connection()
-        self.protocol.start_upload()
+        self.protocol.start_download()
 
     def stop(self):
         self.downloading = False
-
