@@ -32,7 +32,7 @@ class TCPSAckKReceiver(TCPSAck):
         if self.eoc:
             logger.info(f"Received EOC packet from {self.addr}, SENDER DISCONNECTED")
             return False
-        self.eof = header.eof
+
         logger.debug(f"Window before: {[packet.header.seq_num for packet in self.window]}")
         if header.seq_num >= self.seq_num_to_write + self.window_size or header.seq_num < self.seq_num_to_write:
             return True
@@ -42,9 +42,11 @@ class TCPSAckKReceiver(TCPSAck):
             self.seq_num_to_write += 1
             self.seq_num_to_write %= 2**30
             packets_written = []
+            self.eof = header.eof
             for packet in self.window:
                 if packet.header.seq_num == self.seq_num_to_write:
                     logger.debug(f"Writing packet in window with seq_num: {packet.header.seq_num}")
+                    self.eof = packet.header.eof
                     self.file.write(packet.payload)
                     self.seq_num_to_write += 1
                     self.seq_num_to_write %= 2**30
