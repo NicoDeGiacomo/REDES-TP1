@@ -52,7 +52,7 @@ class Packet:
         self.header = header
         self.payload = payload
         self.retries = 0
-        self.retransmit = False
+        self.retransmit = None
 
 
 class Protocol(ABC):

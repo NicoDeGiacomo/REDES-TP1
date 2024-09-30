@@ -29,10 +29,10 @@ class Accepter:
         #TODO: check error cases (memory/ports/filename usage) depending on the action. In case of error, answer here to the respective client
         if action == 0:
             new_client_protocol = StopAndWait(self.socket.host, addr, file_path) if ptocol == 1 \
-                else TCPSAckSender(10, file_path, self.socket.host, addr, 0)
+                else TCPSAckSender(100, file_path, self.socket.host, addr, 0)
         else:
             new_client_protocol = StopAndWait(self.socket.host, addr, file_path) if ptocol == 1 \
-                else TCPSAckKReceiver(10, file_path, self.socket.host, addr,0)
+                else TCPSAckKReceiver(100, file_path, self.socket.host, addr,0)
         
 
         new_client_action = Uploader(new_client_protocol) if action == 0 else Downloader(new_client_protocol)

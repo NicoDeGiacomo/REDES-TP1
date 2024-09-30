@@ -1,6 +1,8 @@
 
 import socket
 import time
+from unittest.result import failfast
+
 from tcp_sack import TCPSAck, ACKSACKHeader
 from protocol import Header, Packet, logger
 
@@ -9,10 +11,11 @@ class TCPSAckSender(TCPSAck):
         super().__init__(host, addr, file_path, initial_seq_num, window_size)
         self.file.open('rb')
         self.timestamps = {}
-        self.socket.set_timeout(0.15) # TODO definir timeout
+        self.socket.set_timeout(0.2) # TODO definir timeout
         self.timeout = 0.2 # TODO definir timeout timestamps
         self.seq_num_to_send = initial_seq_num
         self.last_ack_data = None
+        self.fast_retransmit = 0
 
     def start_upload(self):
         logger.info(f"Starting upload with TCP + SAck protocol to Address: {self.addr}")
@@ -51,6 +54,8 @@ class TCPSAckSender(TCPSAck):
 
 
             # Retransmitir el paquete
+            if packet.retransmit is False:
+                continue
             logger.debug(f"Retransmitting packet with sequence number: {packet.header.seq_num}")
             self.socket.send_message_to(packet.header.get_bytes() + packet.payload, self.addr)
             packet.retries += 1
@@ -58,9 +63,12 @@ class TCPSAckSender(TCPSAck):
             # Actualizar el tiempo de retransmisión
             self.timestamps[packet.header.seq_num] = time.time() + self.timeout
 
+
         # Resend packets that are set as retransmit
-        if not len(due_packets):
+        if not len(due_packets) and self.fast_retransmit < 3:
             return True
+
+        self.fast_retransmit = 0
         for packet in self.window:
             if not packet.retransmit:
                 continue
@@ -87,6 +95,10 @@ class TCPSAckSender(TCPSAck):
             self.last_ack_data = data
 
         header = ACKSACKHeader.parse_header(data)
+        if self.seq_num_to_send == header.seq_num:
+            self.fast_retransmit += 1
+        else:
+            self.fast_retransmit = 0
 
         logger.debug(f"Received ACK with sequence number: {header.seq_num}")
         self.handle_ack(header)
@@ -110,6 +122,8 @@ class TCPSAckSender(TCPSAck):
         if header.sack_length > 0:
             logger.debug(f"SACK Received: {header.sack}")
             for packet in self.window:
+                if packet.header.seq_num <= header.sack[header.sack_length - 1]:
+                    packet.retransmit = False
                 if header.seq_num <= packet.header.seq_num < header.sack[0]:
                     packet.retransmit = True
             for i in range(1, 2 * header.sack_length - 1, 2):

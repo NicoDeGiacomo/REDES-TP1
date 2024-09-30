@@ -28,7 +28,7 @@ def download(host: str, port: int, path: str, file_name: str, protocol: int) -> 
         return errno.ENOENT
 
     if protocol == 0:
-        client_protocol = TCPSAckKReceiver(10, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
+        client_protocol = TCPSAckKReceiver(100, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
     else:
         client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
     logger.info(f"Establishing connection with server")
