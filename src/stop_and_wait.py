@@ -8,7 +8,7 @@ class StopAndWait(Protocol):
     def __init__(self, host, addr: (str, int), file_path):
         super().__init__(host, addr, file_path)
         self.protocol_bit = 1
-        self.file = FileClient(file_path)
+
 
     @staticmethod
     def get_header_value():

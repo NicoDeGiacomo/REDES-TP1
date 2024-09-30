@@ -2,7 +2,6 @@ import argparse
 import errno
 import logging
 import os
-from lib.lib import validate_port
 import stop_and_wait
 from action import Action
 from tcp_sack_receiver import TCPSAckKReceiver
@@ -29,7 +28,7 @@ def download(host: str, port: int, path: str, file_name: str, protocol: int) -> 
         return errno.ENOENT
 
     if protocol == 0:
-        client_protocol = TCPSAckKReceiver(10, 5, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
+        client_protocol = TCPSAckKReceiver(10, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
     else:
         client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
     logger.info(f"Establishing connection with server")
@@ -51,7 +50,7 @@ if __name__ == '__main__':
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="server IP address")
-    parser.add_argument('-p', '--port', action='store', default=12345, type=validate_port, 
+    parser.add_argument('-p', '--port', action='store', default=12345,
                         help="server port")
     parser.add_argument('-d', '--dst', action='store', default="./files/client_storage",
                         help="destination file path")

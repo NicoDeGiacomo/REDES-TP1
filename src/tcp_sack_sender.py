@@ -5,8 +5,8 @@ from tcp_sack import TCPSAck, ACKSACKHeader
 from protocol import Header, Packet, logger
 
 class TCPSAckSender(TCPSAck):
-    def __init__(self, window_size: int, max_retry: int, file_path: str, host: str, addr, initial_seq_num: int) -> None:
-        super().__init__(host, addr, file_path, initial_seq_num, window_size, max_retry)
+    def __init__(self, window_size: int, file_path: str, host: str, addr, initial_seq_num: int) -> None:
+        super().__init__(host, addr, file_path, initial_seq_num, window_size)
         super().file.open('rb')
         self.timestamps = {}
         self.socket.set_timeout(10) # TODO definir timeout
@@ -37,24 +37,29 @@ class TCPSAckSender(TCPSAck):
 
         # Resend the packets that are due
         due_packets = self.get_due_timestamps()
+        # TODO ver que timestamp sea un atributo de la clase Packet
         for packet in due_packets:
             if packet.retries >= self.max_retry:
                 logger.debug(f"Max retries reached for packet with sequence number: {packet.header.seq_num}. Connection lost.")
                 self.file.close()
                 super().close()
-                return False
+                return False # TODO validar para salir del thread
+
 
             # Retransmitir el paquete
             logger.debug(f"Retransmitting packet with sequence number: {packet.header.seq_num}")
             self.socket.send_message_to(packet.header.get_bytes() + packet.data)
             packet.retries += 1
-            packet.retrnasmit = False
+            packet.retransmit = False
             # Actualizar el tiempo de retransmisión
             self.timestamps[packet.header.seq_num] = time.time() + self.timeout
 
         # Resend packets that are set as retransmit
-        retransmit_packets = [packet for packet in self.window if packet.retransmit]
-        for packet in retransmit_packets:
+        if not len(due_packets):
+            return True
+        for packet in self.window:
+            if not packet.retransmit:
+                continue
             if packet.retries >= self.max_retry:
                 logger.debug(f"Max retries reached for packet with sequence number: {packet.header.seq_num}. Connection lost.")
                 self.file.close()
@@ -68,59 +73,48 @@ class TCPSAckSender(TCPSAck):
     
     def listen_for_ack_and_sack(self):
         logger.debug(f"Listening for ACKs and SACKs")
-        while not self.file.eof:
-            data, addr = self.socket.receive_message(1400)
-            header, biggest_sack_seq_num = parse_header(data)
-            if header.eoc:
-                logger.debug(f"Received EOC with sequence number: {header.seq_num}")
-                self.handle_eoc(header)
-            logger.debug(f"Received ACK with sequence number: {header.seq_num}")
-            if biggest_sack_seq_num > self.biggest_seq_num_sacked:
-                self.biggest_seq_num_sacked = biggest_sack_seq_num
-            self.handle_ack(header)
+
+        data, addr = self.socket.receive_message(1400)
+        header, _ = ACKSACKHeader.parse_header(data)
+        if header.eoc:
+            logger.debug(f"Received EOC with sequence number: {header.seq_num}")
+            self.handle_eoc()
+        logger.debug(f"Received ACK with sequence number: {header.seq_num}")
+        self.handle_ack(header)
 
     def handle_ack(self, header: ACKSACKHeader):
-        # Check if the ACK is in the window
-        ack_in_window = False
-        # TODO solo menores o tambien mayores dropeo?
-        for packet in self.window:
-            if packet.header.seq_num == header.seq_num:
-                ack_in_window = True
-                break
-        
-        if not ack_in_window:
-            logger.debug(f"Received an out-of-window ACK with sequence number: {header.seq_num}")
-            return
-        
+
         # Remove packets from the window that are smaller than the one ACKed
-        self.window = [packet for packet in self.window if packet.header.seq_num < header.seq_num]
+        self.window = [packet for packet in self.window if packet.header.seq_num >= header.seq_num]
+
+        # Remove the timestamps that are no longer in the window
+        seq_nums_in_window = [packet.header.seq_num for packet in self.window]
+        for timestamp in self.timestamps:
+            if timestamp not in [seq_nums_in_window]:
+                del self.timestamps[timestamp]
 
         # Check if there are any SACKs
         if header.sack_length > 0:
-            logger.debug(f"Received SACK with length: {header.sack_length}")
-            for i in range(0, 2 * header.sack_length, 2):
-                start = header.sack[i]
-                end = header.sack[i + 1]
-                logger.debug(f"Received SACK for range: {start} - {end}")
-                # Remove the packets in the SACK range from the window
-                self.window = [packet for packet in self.window if not start <= packet.header.seq_num < end]
+            for packet in self.window:
+                if header.seq_num <= packet.header.seq_num < header.sack[0]:
+                    packet.retransmit = True
+            for i in range(1, 2 * header.sack_length - 1, 2):
+                end = header.sack[i]
+                next_start = header.sack[i + 1]
                 for packet in self.window:
-                    if packet.header.seq_num <= self.biggest_seq_num_sacked:
+                    if  end <= packet.header.seq_num < next_start:
                         packet.retransmit = True
         else:
             # Resend the acked packet
             for packet in self.window:
-                if packet.seq_num == header.seq_num:
+                if packet.header.seq_num == header.seq_num:
                     packet.retransmit = True
 
-        # Remove the timestamps that are no longer in the window
-        for timestamp in self.timestamps:
-            if timestamp not in [packet.header.seq_num for packet in self.window]:
-                del self.timestamps[timestamp]
+
+
     
-    def handle_eoc(self, header: ACKSACKHeader):
+    def handle_eoc(self):
         # Close the connection
-        # TODO deberia enviar el seq num que pidio antes de cerrar y enviar el ack?
         logger.info(f"Received EOC. Closing connection")
         self.file.close()
         super().close()
@@ -142,6 +136,9 @@ class TCPSAckSender(TCPSAck):
             if v.header.seq_num in due_items:
                 due_packets.append(v)
         return due_packets
+
+    def start_download(self):
+        pass
 
 
         

@@ -1,22 +1,22 @@
 from abc import abstractmethod
-from protocol import Protocol, logger
+from protocol import Protocol, logger, Header
 
+MAX_RETRIES = 15
 
-class ACKSACKHeader():
+class ACKSACKHeader(Header):
     def __init__(self, eoc: int, seq_num: int, sack_length: int, sack: list) -> None:
-        super().__init__(eoc, seq_num)
+        super().__init__(None, eoc, seq_num)
         self.sack_length = sack_length
         self.sack = sack
-        if len(sack) != 2 * sack_length:
-            raise ValueError("Two times Sack length does not match the length of the sack list")
 
     def get_bytes(self):
-        header_first_byte = (self.eoc << 31) | self.seq_num # deberia ignorar un bit?
-        header_second_byte = self.sack_length.to_bytes(byteorder='big') # TODO porque el legnth es un byte?
-        header_bytes = bytearray(header_first_byte.to_bytes(4, byteorder='big'))
-        header_bytes += header_second_byte
+        header_first_line = (self.eoc << 31) | (0 << 30) | (self.seq_num & 0b00111111111111111111111111111111)
+        header_second_line = self.sack_length.to_bytes( byteorder='big')
+        header_bytes = bytearray(header_first_line.to_bytes(4, byteorder='big'))
+        header_bytes += header_second_line
         for i in self.sack:
-            header_bytes += i.to_bytes(4, byteorder='big') # mismo aca deberia ignorar 2 bits?
+            header_bytes += i[0].to_bytes(4, byteorder='big')
+            header_bytes += i[1].to_bytes(4, byteorder='big')
         return header_bytes
     
     @staticmethod
@@ -48,8 +48,10 @@ class TCPSAck(Protocol):
     def __init__(self, host, addr, file_path, initial_seq_num, window_size):
         super().__init__(host, addr, file_path)
         self.window_size = window_size
+        self.window = []
         self.protocol_bit = 0
         self.initial_seq_num = initial_seq_num
+        self.max_retry = MAX_RETRIES
 
     @staticmethod
     def get_header_value():

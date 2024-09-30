@@ -1,8 +1,8 @@
 import argparse
 import logging
 import os
-import accepter as accepter
-from lib.lib import validate_port
+import accepter
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
                         help="service IP address")
-    parser.add_argument('-p', '--port', action='store', type=validate_port, default=12345,
+    parser.add_argument('-p', '--port', action='store', default=12345,
                         help="service port")
     parser.add_argument('-s', '--storage', action='store', default="files/server_storage",
                         help="storage dir path")

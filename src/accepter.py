@@ -15,7 +15,6 @@ class Accepter:
     def __init__(self, storage, host, port):
         self.storage_path = storage
         self.socket = UDPClient(host, port)
-        self.socket.set_retry(1)
         self.socket.set_timeout(None)
         logger.info(f"Server accepter bounded to {self.socket.host}:{self.socket.port}")
 
@@ -25,15 +24,15 @@ class Accepter:
         action, ptocol, file_name = self._parse_header(header)
         logger.info(f'Server received an {'Upload' if action == 1 else 'Download'} action '
                     f'using {'S&W' if ptocol == 1 else 'TCP + SACK'} protocol for a file named {file_name} ')
-        file_path = os.path.join(self.storage_path, file_name)
+        file_path = str(os.path.join(self.storage_path, file_name))
 
         #TODO: check error cases (memory/ports/filename usage) depending on the action. In case of error, answer here to the respective client
         if action == 0:
             new_client_protocol = StopAndWait(self.socket.host, addr, file_path) if ptocol == 1 \
-                else TCPSAckSender(10, 10, file_path, self.socket.host, addr, 0)
+                else TCPSAckSender(10, file_path, self.socket.host, addr, 0)
         else:
             new_client_protocol = StopAndWait(self.socket.host, addr, file_path) if ptocol == 1 \
-                else TCPSAckKReceiver(10, 10, file_path, self.socket.host, addr,0)
+                else TCPSAckKReceiver(10, file_path, self.socket.host, addr,0)
         
 
         new_client_action = Uploader(new_client_protocol) if action == 0 else Downloader(new_client_protocol)
