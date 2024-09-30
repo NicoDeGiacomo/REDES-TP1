@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import logging
 import os
+from file_client import FileClient
 
 from udp_client import UDPClient
 
@@ -60,6 +61,7 @@ class Protocol(ABC):
         self.addr = addr
         self.file_path = file_path
         self.protocol_bit = None
+        self.file = FileClient(file_path)
 
     @abstractmethod
     def start_upload(self):

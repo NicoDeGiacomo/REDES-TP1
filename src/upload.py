@@ -30,9 +30,10 @@ def upload(host: str, port: int, path: str, file_name: str, protocol: int) -> in
         return errno.ENOENT
     
     logger.info(f"File {file_name} found, proceeding with upload.")
+
     if protocol == 0:
-        client_protocol = TCPSAckSender(10, 5, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
-    elif protocol == 1:
+        client_protocol = TCPSAckSender(10, os.path.join(path, file_name), "0.0.0.0", (host, port), 0)
+    else:
         client_protocol = stop_and_wait.StopAndWait("0.0.0.0", (host, port), os.path.join(path, file_name))
     logger.info(f"Establishing connection with server")
     client_protocol.establish_connection(Action.UPLOAD.value)
