@@ -1,13 +1,12 @@
 
 import time
-from stop_and_wait import parse_header
 from tcp_sack import TCPSAck, ACKSACKHeader
 from protocol import Header, Packet, logger
 
 class TCPSAckSender(TCPSAck):
     def __init__(self, window_size: int, file_path: str, host: str, addr, initial_seq_num: int) -> None:
         super().__init__(host, addr, file_path, initial_seq_num, window_size)
-        super().file.open('rb')
+        self.file.open('rb')
         self.timestamps = {}
         self.socket.set_timeout(10) # TODO definir timeout
         self.timeout = 10 # TODO definir timeout timestamps
