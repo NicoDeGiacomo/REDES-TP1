@@ -28,8 +28,13 @@ class TCPSAckKReceiver(TCPSAck):
         logger.debug(
             f"Listening for packets from {self.addr}, expecting seq_num: "
             f"{self.seq_num_to_write}")
+
         data, addr = self.socket.receive_message(1500)  # TODO catch timeout
         header = Header.parse_header(data[:4])
+        if not data:
+            self.eoc = 1
+            return False
+
         logger.debug(f"Received packet with seq_num: {header.seq_num}")
         payload = data[4:]
         self.eoc = header.eoc

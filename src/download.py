@@ -26,11 +26,6 @@ def download(host: str, port: int, path: str, file_name: str,
             f"Must be 1-63 characters long.")
         return errno.EINVAL
 
-    file_path = os.path.join(path, file_name)
-    if not os.path.isfile(file_path):
-        logger.error(f"File not found at path: {file_path}")
-        return errno.ENOENT
-
     if protocol == 0:
         client_protocol = TCPSAckKReceiver(100, os.path.join(path, file_name),
                                            "0.0.0.0", (host, port), 0)
