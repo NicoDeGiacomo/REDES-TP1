@@ -163,3 +163,5 @@ cython_debug/
 .vscode/
 
 out/
+
+src/lib/protocols/.DS_Store

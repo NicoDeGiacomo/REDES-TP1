@@ -30,7 +30,7 @@ class StopAndWait(Protocol):
                 packet = header + data
                 retries = 0
                 while uploading_status is None or uploading_status.is_set():
-                    logger.info(
+                    logger.debug(
                         f"Sending Packet: {header}, "
                         f"for the {retries + 1} time")
                     self.socket.send_message_to(packet, self.addr)
@@ -98,7 +98,7 @@ class StopAndWait(Protocol):
                 header = packet[:1]
                 data = packet[1:]
                 recv_seq_num, eof, self.eoc = parse_header(header)
-                logger.info(f"Receiving Packet: {header}")
+                logger.debug(f"Receiving Packet: {header}")
 
                 if recv_seq_num == seq_num:
                     self.file.write(data)
