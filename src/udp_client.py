@@ -53,8 +53,7 @@ class UDPClient:
             return None, None
         except Exception as e:  # Captura cualquier otra excepción
             logger.error(f"An unexpected error occurred: {e}")
-            time.sleep(100)
-            raise e
+            return None, None
 
     def close(self):
         self.client.close()
