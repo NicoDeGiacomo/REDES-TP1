@@ -10,8 +10,8 @@ class TCPSAckSender(TCPSAck):
         super().__init__(host, addr, file_path, initial_seq_num, window_size)
         self.file.open('rb')
         self.timestamps = {}
-        self.socket.set_timeout(0.2)  # TODO definir timeout
-        self.timeout = 0.2  # TODO definir timeout timestamps
+        self.socket.set_timeout(0.2)
+        self.timeout = 0.2
         self.seq_num_to_send = initial_seq_num
         self.last_ack_data = None
         self.fast_retransmit = 0
@@ -72,7 +72,6 @@ class TCPSAckSender(TCPSAck):
 
         # Resend the packets that are due
         due_packets = self.get_due_timestamps()
-        # TODO ver que timestamp sea un atributo de la clase Packet
         for packet in due_packets:
             logger.debug("TIMEOUT PACKETS")
             if packet.retries >= self.max_retry:
@@ -80,8 +79,9 @@ class TCPSAckSender(TCPSAck):
                     f"Max retries reached for packet with sequence number: "
                     f"{packet.header.seq_num}. Connection lost.")
                 self.file.close()
+                self.eoc = 1
                 super().close()
-                return False  # TODO validar para salir del thread
+                return False
 
             # Retransmitir el paquete
             if packet.retransmit is False:
