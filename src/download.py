@@ -2,9 +2,9 @@ import argparse
 import errno
 import logging
 import os
-import stop_and_wait
-from action import Action
-from tcp_sack_receiver import TCPSAckKReceiver
+from lib.protocols.stop_and_wait import stop_and_wait
+from lib.utils.action import Action
+from lib.protocols.TCP_SACK.tcp_sack_receiver import TCPSAckKReceiver
 
 logger = logging.getLogger(__name__)
 

@@ -1,14 +1,14 @@
 import argparse
 import logging
 import os
-import accepter
+from lib.server import accepter
 
 logger = logging.getLogger(__name__)
 
 
 def start_server(host: str, port: int, storage: str) -> None:
     if not os.path.exists(storage):
-        os.makedirs(storage)  # TODO: Should handle errors
+        os.makedirs(storage)
     logger.info(f"Starting server on {host}:{port} with storage at {storage}.")
     clients_threads = []
     server_accepter = accepter.Accepter(storage, host, port)
