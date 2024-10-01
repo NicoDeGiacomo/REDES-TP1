@@ -8,3 +8,13 @@ https://cdimage.ubuntu.com/jammy/daily-live/current/
 
 Install Mininet from Packages\
 https://mininet.org/download/#option-3-installation-from-packages
+
+Install Xterm\
+```bash
+sudo apt install xterm
+```
+
+Install Wireshark\
+```bash
+sudo apt install wireshark-qt
+```
