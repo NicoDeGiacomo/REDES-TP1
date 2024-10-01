@@ -45,7 +45,7 @@ def upload(host: str, port: int, path: str, file_name: str,
     logger.info("Establishing connection with server")
     if client_protocol.establish_connection(Action.UPLOAD.value):
         logger.info("Starting file uploading")
-        client_protocol.start_upload()
+        client_protocol.start_upload(None)
         return 0
 
     return 1

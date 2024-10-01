@@ -51,9 +51,6 @@ class UDPClient:
         except socket.timeout:
             logger.debug("Timeout triggered")
             return None, None
-        except Exception as e:  # Captura cualquier otra excepción
-            logger.error(f"An unexpected error occurred: {e}")
-            return None, None
 
     def close(self):
         self.client.close()

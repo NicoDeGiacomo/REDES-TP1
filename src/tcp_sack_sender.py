@@ -16,11 +16,11 @@ class TCPSAckSender(TCPSAck):
         self.last_ack_data = None
         self.fast_retransmit = 0
 
-    def start_upload(self):
+    def start_upload(self, uploading_status):
         logger.info(
             f"Starting upload with TCP+SAck protocol to Address: {self.addr}")
         try:
-            while not self.eoc:
+            while not self.eoc and (uploading_status is None or uploading_status.is_set()):
                 if self.read_and_send():
                     self.listen_for_ack_and_sack()
         except KeyboardInterrupt:
@@ -31,6 +31,17 @@ class TCPSAckSender(TCPSAck):
             self.socket.send_message_to(header.get_bytes(), self.addr)
             self.file.close()
             super().close()
+            return False
+
+        if uploading_status and not uploading_status.is_set():
+            logger.debug(
+                "Thread Stopped")
+            self.eoc = 1
+            header = Header(self.file.eof, self.eoc, self.seq_num_to_send)
+            self.socket.send_message_to(header.get_bytes(), self.addr)
+            self.file.close()
+            super().close()
+            return False
 
         if self.file.eof:
             logger.info("File uploaded successfully")
@@ -203,5 +214,5 @@ class TCPSAckSender(TCPSAck):
                 due_packets.append(v)
         return due_packets
 
-    def start_download(self):
+    def start_download(self, downloading_status):
         pass

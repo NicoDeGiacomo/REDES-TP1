@@ -12,16 +12,24 @@ class TCPSAckKReceiver(TCPSAck):
         self.eoc = 0
         self.seq_num_to_write = initial_seq_num
 
-    def start_download(self):
+    def start_download(self, downloading_status):
         logger.info(
             f"Starting download with TCP+SAck protocol to Address: "
             f"{self.addr}")
         try:
-            while not self.eof and not self.eoc:
+            while not self.eof and not self.eoc and (downloading_status is None or downloading_status.is_set()):
                 if self.listen_packet():
                     self.send_ack_and_sack()
         except KeyboardInterrupt:
             logger.debug(f"Keyboard interrupt received, stopping download")
+            self.eoc = 1
+            header = ACKSACKHeader(self.eoc | self.eof, self.seq_num_to_write,
+                                   0, [])
+            self.socket.send_message_to(header.get_bytes(), self.addr)
+
+
+        if downloading_status and not downloading_status.is_set():
+            logger.debug(f"Thread stopped")
             self.eoc = 1
             header = ACKSACKHeader(self.eoc | self.eof, self.seq_num_to_write,
                                    0, [])
@@ -126,5 +134,5 @@ class TCPSAckKReceiver(TCPSAck):
         logger.debug(f"Sending ACK and SACK to {self.addr}")
         self.socket.send_message_to(header.get_bytes(), self.addr)
 
-    def start_upload(self):
+    def start_upload(self, uploading_status):
         pass

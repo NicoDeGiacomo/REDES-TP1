@@ -36,7 +36,7 @@ def download(host: str, port: int, path: str, file_name: str,
     logger.info("Establishing connection with server")
     if client_protocol.establish_connection(Action.DOWNLOAD.value):
         logger.info("Starting file download")
-        client_protocol.start_download()
+        client_protocol.start_download(None)
         return 0
     return 1
 

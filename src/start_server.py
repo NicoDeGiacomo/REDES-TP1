@@ -20,6 +20,8 @@ def start_server(host: str, port: int, storage: str) -> None:
                 clients_threads.append(new_client)
     except KeyboardInterrupt:
         for client in clients_threads:
+            client.stop()
+        for client in clients_threads:
             client.join()
 
 if __name__ == '__main__':

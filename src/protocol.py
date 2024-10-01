@@ -64,11 +64,11 @@ class Protocol(ABC):
         self.eoc = 0
 
     @abstractmethod
-    def start_upload(self):
+    def start_upload(self, uploading_status):
         pass
 
     @abstractmethod
-    def start_download(self):
+    def start_download(self, downloading_status):
         pass
 
     @staticmethod

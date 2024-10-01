@@ -9,13 +9,15 @@ logger = logging.getLogger(__name__)
 class Downloader(threading.Thread):
     def __init__(self, comm_protocol: Protocol):
         super().__init__()
-        self.downloading = True
+        self.downloading = threading.Event()
+        self.downloading.set()
         self.protocol = comm_protocol
 
     def run(self):
         logger.info("Starting download ")
         self.protocol.answer_connection()
-        self.protocol.start_download()
+        self.protocol.start_download(self.downloading)
 
     def stop(self):
-        self.downloading = False
+        self.downloading.clear()
+        #exit(0)

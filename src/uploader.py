@@ -7,13 +7,16 @@ logger = logging.getLogger(__name__)
 class Uploader(threading.Thread):
     def __init__(self, comm_protocol):
         super().__init__()
-        self.uploading = True
+        self.uploading = threading.Event()
+        self.uploading.set()
         self.protocol = comm_protocol
 
     def run(self):
         logger.info("Starting upload")
         self.protocol.answer_connection()
-        self.protocol.start_upload()
+        self.protocol.start_upload(self.uploading)
 
     def stop(self):
-        self.uploading = False
+        self.uploading.clear()
+        #exit(0)
+

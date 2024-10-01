@@ -1,3 +1,5 @@
+import threading
+
 from protocol import Protocol, logger
 import time
 
@@ -13,7 +15,7 @@ class StopAndWait(Protocol):
     def get_header_value():
         return 1
 
-    def start_upload(self):
+    def start_upload(self, uploading_status: threading.Event):
         self.socket.set_timeout(0.01)
         logger.info(
             f"Starting upload with Stop And Wait protocol to Address: "
@@ -21,13 +23,13 @@ class StopAndWait(Protocol):
         self.file.open('rb')
         seq_num = 0
         try:
-            while True:
+            while uploading_status is None or uploading_status.is_set():
                 data = self.file.read(
                     1490)  # calcular tamaño real 65507 - 4 (header size)
                 header = create_header(seq_num, self.file.eof, self.eoc)  # falta bit de eoc
                 packet = header + data
                 retries = 0
-                while True:
+                while uploading_status is None or uploading_status.is_set():
                     logger.info(
                         f"Sending Packet: {header}, for the {retries + 1} time ")
                     self.socket.send_message_to(packet, self.addr)
@@ -60,21 +62,32 @@ class StopAndWait(Protocol):
             self.file.close()
             super().close()
             return False
+
+        if uploading_status and not uploading_status.is_set():
+            logger.debug("Thread stopped")
+            self.eoc = 1
+            header = create_header(seq_num, self.file.eof, self.eoc)
+            self.socket.send_message_to(header, self.addr)
+            self.file.close()
+            super().close()
+            return False
+
         if self.eoc:
             logger.error("Connection lost due to eoc ")
 
         self.file.close()
         super().close()
 
-    def start_download(self):
+    def start_download(self, downloading_status: threading.Event):
         self.socket.set_timeout(0.15)
         logger.info(
             f"Starting download with Stop And Wait protocol from Address: "
             f"{self.addr}")
         self.file.open('wb')
+        eof = 0
         seq_num = 0
         try:
-            while True:
+            while downloading_status is None or downloading_status.is_set():
                 packet, _,= self.socket.receive_message(1500)
                 if packet is None:
                     logger.error("CONNECTION WITH UPLOADER LOST")
@@ -101,10 +114,30 @@ class StopAndWait(Protocol):
             self.eoc = 1
             ack = create_ack(seq_num, self.eoc)
             self.socket.send_message_to(ack, self.addr)
-            self.file.close()
+            if eof:
+                logger.info("File downloaded successfully!")
+                self.file.close()
+            else:
+                logger.error("CONNECTION WITH UPLOADER LOST")
+                self.file.delete()
             super().close()
             return False
-        if self.file.eof:
+
+        if downloading_status and not downloading_status.is_set():
+            logger.debug("Thread stopped")
+            self.eoc = 1
+            ack = create_ack(seq_num, self.eoc)
+            self.socket.send_message_to(ack, self.addr)
+            if eof:
+                logger.info("File downloaded successfully!")
+                self.file.close()
+            else:
+                logger.error("CONNECTION WITH UPLOADER LOST")
+                self.file.delete()
+            super().close()
+            return False
+
+        if eof:
             logger.info("File downloaded successfully!")
             self.file.close()
         else:
