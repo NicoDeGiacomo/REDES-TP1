@@ -25,12 +25,45 @@ $ md5sum -c hashfile
 ```
 
 ### Run Instructions
-Run Server
+##### Go to Folder
 ```bash
-$ python3 src/start-server.py
+cd REDES-TP1/
 ```
 
-Run Client
+##### Run Wireshark
 ```bash
-$ python3 src/upload.py
+sudo wireshark
+```
+
+##### Run Mininet
+```bash
+sudo mn --custom topology.py --topo custom
+```
+
+##### Launch XTerm
+```bash
+xterm h1
+xterm h2
+xterm h3
+xterm h4
+```
+
+##### Launch Server in H1
+```bash
+python3.12 src/start_server.py -H 10.0.0.1 -p 12345
+```
+
+##### Launch Download Client in H2
+```bash
+python3.12 src/download.py -H 10.0.0.1 -p 12345 -n T-rex.jpg
+```
+
+##### Launch Upload Client in H3
+```bash
+python3.12 src/upload.py -H 10.0.0.1 -p 12345 -n velociraptor.jpg
+```
+
+##### Launch Download Client in H4
+```bash
+python3.12 src/download.py -H 10.0.0.1 -p 12345 -n alibaba.txt
 ```
