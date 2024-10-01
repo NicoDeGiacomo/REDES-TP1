@@ -55,17 +55,17 @@ python3.12 src/start_server.py -H 10.0.0.1 -p 12345
 
 ##### Launch Download Client in H2 (TCP+SACK)
 ```bash
-python3.12 src/download.py -H 10.0.0.1 -p 12345 -n T-rex.jpg
+python3.12 src/download.py -H 10.0.0.1 -p 12345 -n file.mp4
 ```
 
 ##### Launch Upload Client in H3 (TCP+SACK)
 ```bash
-python3.12 src/upload.py -H 10.0.0.1 -p 12345 -n velociraptor.jpg
+python3.12 src/upload.py -H 10.0.0.1 -p 12345 -n file.jpg
 ```
 
 ##### Launch Download Client in H4 (TCP+SACK)
 ```bash
-python3.12 src/download.py -H 10.0.0.1 -p 12345 -n alibaba.txt
+python3.12 src/download.py -H 10.0.0.1 -p 12345 -n file.txt
 ```
 
 To use S&W protocol, add the parameter -P1 to the client command.
