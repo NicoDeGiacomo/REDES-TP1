@@ -19,10 +19,26 @@ class TCPSAckSender(TCPSAck):
     def start_upload(self):
         logger.info(
             f"Starting upload with TCP+SAck protocol to Address: {self.addr}")
-        while not self.eoc:
-            if self.read_and_send():
-                self.listen_for_ack_and_sack()
-        logger.info("File transmitted successfully")
+        try:
+            while not self.eoc:
+                if self.read_and_send():
+                    self.listen_for_ack_and_sack()
+        except KeyboardInterrupt:
+            logger.debug(
+                "Keyboard interrupt exception, ending connection")
+            self.eoc = 1
+            header = Header(self.file.eof, self.eoc, self.seq_num_to_send)
+            self.socket.send_message_to(header.get_bytes(), self.addr)
+            self.file.close()
+            super().close()
+
+        if self.file.eof:
+            logger.info("File uploaded successfully")
+
+        self.file.close()
+        super().close()
+
+
 
     def read_and_send(self):
         # self.answer_connection(error, error_code)
