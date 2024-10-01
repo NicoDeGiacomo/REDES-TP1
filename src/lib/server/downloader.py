@@ -20,4 +20,3 @@ class Downloader(threading.Thread):
 
     def stop(self):
         self.downloading.clear()
-        #exit(0)

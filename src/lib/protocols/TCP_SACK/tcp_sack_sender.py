@@ -20,7 +20,8 @@ class TCPSAckSender(TCPSAck):
         logger.info(
             f"Starting upload with TCP+SAck protocol to Address: {self.addr}")
         try:
-            while not self.eoc and (uploading_status is None or uploading_status.is_set()):
+            while (not self.eoc and
+                   (uploading_status is None or uploading_status.is_set())):
                 if self.read_and_send():
                     self.listen_for_ack_and_sack()
         except KeyboardInterrupt:
@@ -49,10 +50,7 @@ class TCPSAckSender(TCPSAck):
         self.file.close()
         super().close()
 
-
-
     def read_and_send(self):
-        # self.answer_connection(error, error_code)
         logger.debug(
             f"reading window TCP + SAck protocol to Address: {self.addr}")
 

@@ -18,5 +18,3 @@ class Uploader(threading.Thread):
 
     def stop(self):
         self.uploading.clear()
-        #exit(0)
-

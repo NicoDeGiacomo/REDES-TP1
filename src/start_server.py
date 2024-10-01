@@ -24,6 +24,7 @@ def start_server(host: str, port: int, storage: str) -> None:
         for client in clients_threads:
             client.join()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Starts File Transfer Server",

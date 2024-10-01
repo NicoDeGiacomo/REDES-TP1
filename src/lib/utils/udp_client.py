@@ -25,17 +25,14 @@ class UDPClient:
         self.header = UdpHeader()
         self.packet_number = 1
 
-
     def set_timeout(self, timeout: int | None) -> None:
         self.client.settimeout(timeout)
-
 
     def send_message_to(self, message: bytearray,
                         dst_addr: (str, int)) -> bool:
         logger.debug(
             f"Sending message of length: {len(message)} to{dst_addr}.")
         self.client.sendto(message, dst_addr)
-
 
     def receive_message(self, buffer: int):
         logger.debug("Waiting for packet...")
@@ -47,7 +44,6 @@ class UDPClient:
         except socket.timeout:
             logger.debug("Timeout triggered")
             return None, None
-
 
     def close(self):
         self.client.close()

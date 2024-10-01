@@ -100,8 +100,11 @@ class Protocol(ABC):
             self.addr = new_addr
             return True
         else:
-            logger.error(f"Error code:{error_code} {"No such file in server" if error_code == 2 
-            else "File already exists in server" if error_code == 1 else "No memory left"} connection failed")
+            error_message = "No such file in server" if error_code == 2 \
+                else "File already exists in server" if error_code == 1 \
+                else "No memory left"
+            logger.error(f"Error code:{error_code} "
+                         f"{error_message} connection failed")
             return False
 
     def establish_connection(self, action):

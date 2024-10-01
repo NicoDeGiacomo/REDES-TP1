@@ -1,7 +1,6 @@
 import threading
 
 from lib.protocols.protocol import Protocol, logger
-import time
 
 MAX_RETRIES = 15
 
@@ -26,12 +25,14 @@ class StopAndWait(Protocol):
             while uploading_status is None or uploading_status.is_set():
                 data = self.file.read(
                     1490)  # calcular tamaño real 65507 - 4 (header size)
-                header = create_header(seq_num, self.file.eof, self.eoc)  # falta bit de eoc
+                header = create_header(seq_num, self.file.eof,
+                                       self.eoc)  # falta bit de eoc
                 packet = header + data
                 retries = 0
                 while uploading_status is None or uploading_status.is_set():
                     logger.info(
-                        f"Sending Packet: {header}, for the {retries + 1} time ")
+                        f"Sending Packet: {header}, "
+                        f"for the {retries + 1} time")
                     self.socket.send_message_to(packet, self.addr)
                     ack, addr = self.socket.receive_message(2)
                     # if self.addr != addr:
@@ -88,7 +89,7 @@ class StopAndWait(Protocol):
         seq_num = 0
         try:
             while downloading_status is None or downloading_status.is_set():
-                packet, _,= self.socket.receive_message(1500)
+                packet, _, = self.socket.receive_message(1500)
                 if packet is None:
                     logger.error("CONNECTION WITH UPLOADER LOST")
                     self.file.delete()

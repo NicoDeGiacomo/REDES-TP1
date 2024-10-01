@@ -15,7 +15,7 @@
 ### Development Instructions
 Run flake8 to check for style errors before committing.
 ```bash
-$ flake8 src/start-server.py
+$ flake8 src/
 ```
 
 Run md5sum to check for the integrity of the transferred file.
