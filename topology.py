@@ -16,7 +16,7 @@ class CustomTopo(Topo):
         s1 = self.addSwitch('s1')
 
         # h1 --> s1, packet_loss=10%
-        self.addLink(h1, s1, cls=TCLink)
+        self.addLink(h1, s1, cls=TCLink, loss=10)
 
         # The rest of the links are normal
         self.addLink(h2, s1, cls=TCLink)
