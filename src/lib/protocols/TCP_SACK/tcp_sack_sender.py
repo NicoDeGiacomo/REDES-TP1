@@ -10,8 +10,8 @@ class TCPSAckSender(TCPSAck):
         super().__init__(host, addr, file_path, initial_seq_num, window_size)
         self.file.open('rb')
         self.timestamps = {}
-        self.socket.set_timeout(0.4)
-        self.timeout = 0.4
+        self.socket.set_timeout(0.6)
+        self.timeout = 0.6
         self.seq_num_to_send = initial_seq_num
         self.last_ack_data = None
         self.fast_retransmit = 0

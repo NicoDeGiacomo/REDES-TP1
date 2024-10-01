@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from lib.protocols.protocol import Protocol, Header
 
-MAX_RETRIES = 15
+MAX_RETRIES = 30
 
 
 class ACKSACKHeader(Header):

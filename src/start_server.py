@@ -32,7 +32,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument('-v', '--verbose', action='store_true',
-                        help="increase output verbosity", default=True)
+                        help="increase output verbosity")
     parser.add_argument('-q', '--quiet', action='store_true',
                         help="decrease output verbosity")
     parser.add_argument('-H', '--host', action='store', default="10.0.0.1",
