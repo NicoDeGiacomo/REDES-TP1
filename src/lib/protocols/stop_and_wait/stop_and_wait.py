@@ -2,7 +2,7 @@ import threading
 
 from lib.protocols.protocol import Protocol, logger
 
-MAX_RETRIES = 15
+MAX_RETRIES = 30
 
 
 class StopAndWait(Protocol):
@@ -15,7 +15,7 @@ class StopAndWait(Protocol):
         return 1
 
     def start_upload(self, uploading_status: threading.Event):
-        self.socket.set_timeout(0.01)
+        self.socket.set_timeout(0.6)
         logger.info(
             f"Starting upload with Stop And Wait protocol to Address: "
             f"{self.addr}")
