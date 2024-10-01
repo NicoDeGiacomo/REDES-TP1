@@ -59,7 +59,7 @@ if __name__ == '__main__':
                         default="./files/client_storage",
                         help="destination file path")
     parser.add_argument('-n', '--name', action='store',
-                        default="T-rex.jpg",
+                        default="velociraptor.jpg",
                         help="file name")
     parser.add_argument('-P', '--protocol', action='store', default=0,
                         help="protocol to use (0: TCP+SACK, 1: Stop and Wait)")
