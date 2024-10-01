@@ -80,7 +80,7 @@ class StopAndWait(Protocol):
         super().close()
 
     def start_download(self, downloading_status: threading.Event):
-        self.socket.set_timeout(0.15)
+        self.socket.set_timeout(10)
         logger.info(
             f"Starting download with Stop And Wait protocol from Address: "
             f"{self.addr}")
