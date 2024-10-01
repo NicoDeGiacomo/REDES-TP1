@@ -91,7 +91,7 @@ $ sudo mn -c
 ### Run topology
 Inside the file, change the packet loss parameter.
 ```bash
-sudo mn --custom topology.py --topo custom --link tc
+sudo mn --custom topology.py --topo custom
 ```
 ```bash
 xterm h1 # server
