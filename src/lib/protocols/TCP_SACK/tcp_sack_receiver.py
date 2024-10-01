@@ -103,7 +103,6 @@ class TCPSAckKReceiver(TCPSAck):
         return True
 
     def send_ack_and_sack(self):
-        logger.info(f"Sending ACK and SACK to {self.addr}")
         sack = []
 
         if len(self.window):
@@ -132,7 +131,9 @@ class TCPSAckKReceiver(TCPSAck):
 
         header = ACKSACKHeader(self.eoc | self.eof, self.seq_num_to_write,
                                sack_len, sack)
-        logger.debug(f"Sending ACK and SACK to {self.addr}")
+
+        logger.debug(f"Sending ACK {self.seq_num_to_write} and SACK {sack} "
+                     f"to {self.addr}")
         self.socket.send_message_to(header.get_bytes(), self.addr)
 
     def start_upload(self, uploading_status):

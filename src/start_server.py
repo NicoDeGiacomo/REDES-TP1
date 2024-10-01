@@ -43,7 +43,6 @@ if __name__ == '__main__':
                         default="files/server_storage",
                         help="storage dir path")
 
-    global args
     args = parser.parse_args()
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
     if args.verbose:

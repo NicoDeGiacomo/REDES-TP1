@@ -63,7 +63,7 @@ if __name__ == '__main__':
                         help="file name")
     parser.add_argument('-P', '--protocol', action='store', default=0,
                         help="protocol to use (0: TCP+SACK, 1: Stop and Wait)")
-    global args
+
     args = parser.parse_args()
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
     if args.verbose:
