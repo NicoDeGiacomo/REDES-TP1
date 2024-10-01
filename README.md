@@ -53,17 +53,19 @@ xterm h4
 python3.12 src/start_server.py -H 10.0.0.1 -p 12345
 ```
 
-##### Launch Download Client in H2
+##### Launch Download Client in H2 (TCP+SACK)
 ```bash
 python3.12 src/download.py -H 10.0.0.1 -p 12345 -n T-rex.jpg
 ```
 
-##### Launch Upload Client in H3
+##### Launch Upload Client in H3 (TCP+SACK)
 ```bash
 python3.12 src/upload.py -H 10.0.0.1 -p 12345 -n velociraptor.jpg
 ```
 
-##### Launch Download Client in H4
+##### Launch Download Client in H4 (TCP+SACK)
 ```bash
 python3.12 src/download.py -H 10.0.0.1 -p 12345 -n alibaba.txt
 ```
+
+To use S&W protocol, add the parameter -P1 to the client command.

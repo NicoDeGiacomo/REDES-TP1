@@ -15,7 +15,7 @@ class StopAndWait(Protocol):
         return 1
 
     def start_upload(self, uploading_status: threading.Event):
-        self.socket.set_timeout(0.6)
+        self.socket.set_timeout(0.05)
         logger.info(
             f"Starting upload with Stop And Wait protocol to Address: "
             f"{self.addr}")
@@ -31,26 +31,24 @@ class StopAndWait(Protocol):
                 retries = 0
                 while uploading_status is None or uploading_status.is_set():
                     logger.debug(
-                        f"Sending Packet: {header}, "
+                        f"Sending Packet: {seq_num}, "
                         f"for the {retries + 1} time")
                     self.socket.send_message_to(packet, self.addr)
-                    ack, addr = self.socket.receive_message(2)
-                    # if self.addr != addr:
-                    if retries > MAX_RETRIES:
-                        logger.info("CONNECTION WITH DOWNLOADER LOST")
-                        self.file.close()
-                        super().close()
-                        return False
 
+                    ack, addr = self.socket.receive_message(2)
                     if ack is None:
+                        if retries > MAX_RETRIES:
+                            logger.info("CONNECTION WITH DOWNLOADER LOST")
+                            self.file.close()
+                            super().close()
+                            return False
                         retries += 1
                         continue
 
                     ack_seq_num, self.eoc = parse_ack(ack)
-
+                    logger.debug(f"Received Ack: {ack_seq_num}")
                     if ack_seq_num == seq_num:
                         break
-                    retries += 1
 
                 if self.file.eof or self.eoc:
                     break
@@ -103,6 +101,7 @@ class StopAndWait(Protocol):
                 if recv_seq_num == seq_num:
                     self.file.write(data)
                     ack = create_ack(seq_num, self.eoc)
+                    logger.debug(f"Sending ACK: {seq_num}")
                     self.socket.send_message_to(ack, self.addr)
                     if eof or self.eoc:
                         break
