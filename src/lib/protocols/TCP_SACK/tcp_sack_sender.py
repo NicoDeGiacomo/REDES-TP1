@@ -124,6 +124,10 @@ class TCPSAckSender(TCPSAck):
 
         data, addr = self.socket.receive_message(1400)
 
+        if not data and not self.last_ack_data:
+            self.eoc = 1
+            return False
+
         if not data:
             data = self.last_ack_data
         else:

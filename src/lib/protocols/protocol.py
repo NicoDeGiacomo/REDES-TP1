@@ -87,8 +87,8 @@ class Protocol(ABC):
 
     def __receive_confirmation(self):
         logger.info("Waiting for confirmation")
-        status, new_addr = self.socket.receive_message(1)
-        if status is None:
+        status, new_addr = self.socket.receive_message(1500)
+        if status is None or len(status) > 1:
             logger.error("Confirmation failed, aborting connection")
             return False
         first_byte = status[0]

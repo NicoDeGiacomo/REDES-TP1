@@ -111,16 +111,16 @@ class TCPSAckKReceiver(TCPSAck):
 
             if len(self.window) == 1:
                 sack.append((left_seq_num, left_seq_num + 1))
-
-            for i in range(1, len(self.window) + 1):
-                if i >= len(self.window):
-                    sack.append((left_seq_num,
-                                 self.window[i - 1].header.seq_num + 1))
-                elif not (self.window[i - 1].header.seq_num ==
-                          self.window[i].header.seq_num - 1):
-                    sack.append(
-                        (left_seq_num, self.window[i - 1].header.seq_num + 1))
-                    left_seq_num = self.window[i].header.seq_num
+            else:
+                for i in range(1, len(self.window) + 1):
+                    if i >= len(self.window):
+                        sack.append((left_seq_num,
+                                     self.window[i - 1].header.seq_num + 1))
+                    elif not (self.window[i - 1].header.seq_num ==
+                              self.window[i].header.seq_num - 1):
+                        sack.append(
+                            (left_seq_num, self.window[i - 1].header.seq_num + 1))
+                        left_seq_num = self.window[i].header.seq_num
 
             logger.debug(
                 f"ACK: {self.seq_num_to_write} SACK formed with blocks: "

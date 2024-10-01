@@ -46,7 +46,6 @@ class Accepter:
             logger.error(f"File '{file_name}' does not exists.")
             error_code = 2
 
-            # check error cases, In case of error, send message to the client
         if error_code:
             error_bite = 1
             self.answer_connection(error_bite, error_code, addr)
